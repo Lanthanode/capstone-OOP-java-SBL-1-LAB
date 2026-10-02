@@ -18,18 +18,71 @@ echo  ==========================================================================
 echo.
 
 :: ============================================================================
-:: STEP 0: Set project root to wherever this .bat file lives
+:: STEP 0: Find project directory (handles any extraction method)
 :: ============================================================================
 set "ROOT=%~dp0"
 if "!ROOT:~-1!"=="\" set "ROOT=!ROOT:~0,-1!"
-set "PROJECT=!ROOT!\project"
+set "PROJECT="
 
-cd /d "!PROJECT!"
-if %ERRORLEVEL% neq 0 (
-    echo [FATAL] Cannot find project directory at: !PROJECT!
+:: Strategy 1: project folder right next to START.bat
+if exist "!ROOT!\project\backend\src" set "PROJECT=!ROOT!\project"
+
+:: Strategy 2: backend\src is right here (START.bat is inside project folder)
+if not defined PROJECT (
+    if exist "!ROOT!\backend\src" set "PROJECT=!ROOT!"
+)
+
+:: Strategy 3: Check one level deeper (zip extracted with wrapper folder)
+if not defined PROJECT (
+    for /d %%D in ("!ROOT!\*") do (
+        if not defined PROJECT (
+            if exist "%%D\project\backend\src" set "PROJECT=%%D\project"
+            if exist "%%D\backend\src" set "PROJECT=%%D"
+        )
+    )
+)
+
+:: Strategy 4: Check parent directory
+if not defined PROJECT (
+    for %%P in ("!ROOT!\..") do (
+        if exist "%%~fP\project\backend\src" set "PROJECT=%%~fP\project"
+    )
+)
+
+:: Strategy 5: Search nearby for backend\src (max 3 levels deep)
+if not defined PROJECT (
+    for /r "!ROOT!" %%F in (Main.java) do (
+        if not defined PROJECT (
+            set "FOUND_PATH=%%~dpF"
+            for %%X in ("!FOUND_PATH!..\..\..\..\..") do (
+                if exist "%%~fX\backend\src" set "PROJECT=%%~fX"
+                if exist "%%~fX\project\backend\src" set "PROJECT=%%~fX\project"
+            )
+        )
+    )
+)
+
+if not defined PROJECT (
+    echo.
+    echo  [FATAL] Could not locate the project files.
+    echo  Make sure START.bat is in the same folder as the "project" directory.
+    echo.
+    echo  Expected structure:
+    echo    SB-TMS-Ready-To-Run\
+    echo      START.bat          ^<-- you are here
+    echo      project\
+    echo        backend\
+    echo        frontend\
+    echo        database\
+    echo.
+    echo  Current location: !ROOT!
+    echo.
     pause
     exit /b 1
 )
+
+cd /d "!PROJECT!"
+echo       [OK] Project found at: !PROJECT!
 
 :: ============================================================================
 :: STEP 1: FIND JAVA
