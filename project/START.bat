@@ -46,39 +46,77 @@ if not defined PROJECT (
 if not defined PROJECT (
     for %%P in ("!ROOT!\..") do (
         if exist "%%~fP\project\backend\src" set "PROJECT=%%~fP\project"
+        if exist "%%~fP\backend\src" set "PROJECT=%%~fP"
     )
 )
 
-:: Strategy 5: Search nearby for backend\src (max 3 levels deep)
+:: Strategy 5: Check Desktop for previously cloned copy
 if not defined PROJECT (
-    for /r "!ROOT!" %%F in (Main.java) do (
-        if not defined PROJECT (
-            set "FOUND_PATH=%%~dpF"
-            for %%X in ("!FOUND_PATH!..\..\..\..\..") do (
-                if exist "%%~fX\backend\src" set "PROJECT=%%~fX"
-                if exist "%%~fX\project\backend\src" set "PROJECT=%%~fX\project"
-            )
+    if exist "%USERPROFILE%\Desktop\SB-TMS\project\backend\src" set "PROJECT=%USERPROFILE%\Desktop\SB-TMS\project"
+    if exist "%USERPROFILE%\Desktop\SB-TMS\backend\src" set "PROJECT=%USERPROFILE%\Desktop\SB-TMS"
+)
+
+:: Strategy 6: AUTO-DOWNLOAD from GitHub if nothing found
+if not defined PROJECT (
+    echo.
+    echo  Project files not found locally. Downloading from GitHub automatically...
+    echo.
+    
+    set "INSTALL_DIR=%USERPROFILE%\Desktop\SB-TMS"
+    
+    :: Check if git is available
+    where git >nul 2>&1
+    if !ERRORLEVEL! equ 0 (
+        echo       [DOWNLOAD] Cloning repository with git...
+        if exist "!INSTALL_DIR!" rmdir /s /q "!INSTALL_DIR!" >nul 2>&1
+        git clone "https://github.com/Lanthanode/capstone-OOP-java-SBL-1-LAB.git" "!INSTALL_DIR!" 2>&1
+        if exist "!INSTALL_DIR!\project\backend\src" (
+            set "PROJECT=!INSTALL_DIR!\project"
         )
     )
-)
-
-if not defined PROJECT (
-    echo.
-    echo  [FATAL] Could not locate the project files.
-    echo  Make sure START.bat is in the same folder as the "project" directory.
-    echo.
-    echo  Expected structure:
-    echo    SB-TMS-Ready-To-Run\
-    echo      START.bat          ^<-- you are here
-    echo      project\
-    echo        backend\
-    echo        frontend\
-    echo        database\
-    echo.
-    echo  Current location: !ROOT!
-    echo.
-    pause
-    exit /b 1
+    
+    :: Fallback: download zip via PowerShell if git not available
+    if not defined PROJECT (
+        echo       [DOWNLOAD] Downloading project zip from GitHub...
+        set "DL_ZIP=%TEMP%\sbtms-download.zip"
+        set "DL_TEMP=%TEMP%\sbtms-extract"
+        
+        powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+            "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; " ^
+            "try { " ^
+            "  Invoke-WebRequest -Uri 'https://github.com/Lanthanode/capstone-OOP-java-SBL-1-LAB/archive/refs/heads/main.zip' -OutFile '!DL_ZIP!' -UseBasicParsing; " ^
+            "  if (Test-Path '!DL_TEMP!') { Remove-Item '!DL_TEMP!' -Recurse -Force }; " ^
+            "  Expand-Archive -Path '!DL_ZIP!' -DestinationPath '!DL_TEMP!' -Force; " ^
+            "  $inner = (Get-ChildItem '!DL_TEMP!' -Directory | Select-Object -First 1).FullName; " ^
+            "  if (Test-Path '!INSTALL_DIR!') { Remove-Item '!INSTALL_DIR!' -Recurse -Force }; " ^
+            "  Move-Item $inner '!INSTALL_DIR!' -Force; " ^
+            "  Remove-Item '!DL_ZIP!' -Force -ErrorAction SilentlyContinue; " ^
+            "  Remove-Item '!DL_TEMP!' -Recurse -Force -ErrorAction SilentlyContinue; " ^
+            "  Write-Host '       Download complete.'; " ^
+            "} catch { " ^
+            "  Write-Host '[ERROR]' $_.Exception.Message; " ^
+            "  exit 1; " ^
+            "}"
+        
+        if exist "!INSTALL_DIR!\project\backend\src" (
+            set "PROJECT=!INSTALL_DIR!\project"
+        )
+    )
+    
+    if defined PROJECT (
+        echo       [OK] Project installed to: !INSTALL_DIR!
+        echo.
+        :: Copy START.bat to the installed location for future runs
+        copy /y "%~f0" "!INSTALL_DIR!\START.bat" >nul 2>&1
+    ) else (
+        echo.
+        echo  [ERROR] Could not download project. Check your internet connection.
+        echo  You can also manually download from:
+        echo    https://github.com/Lanthanode/capstone-OOP-java-SBL-1-LAB
+        echo.
+        pause
+        exit /b 1
+    )
 )
 
 cd /d "!PROJECT!"
