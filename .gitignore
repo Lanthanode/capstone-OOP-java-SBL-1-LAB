@@ -16,3 +16,17 @@ __pycache__/
 # Temporary scratch
 project/scratch/
 project/*.log
+
+# Compiled Java bytecode (recompile on each machine)
+project/backend/bin/
+
+# SQLite database (auto-generated from schema.sql + seed.sql)
+project/database/*.db
+
+# Portable JDK (auto-downloaded if Java not found)
+portable-jdk/
+jdk-download.zip
+jdk-temp/
+
+# Build artifacts
+*.class

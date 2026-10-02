@@ -1,5 +1,4 @@
 @echo off
-setlocal EnableExtensions
-title Stop SB-TMS Server
-cd /d "%~dp0project"
-call stop.bat
+:: Legacy stop - redirects to STOP.bat
+cd /d "%~dp0"
+call STOP.bat

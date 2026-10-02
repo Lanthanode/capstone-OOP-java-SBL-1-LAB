@@ -1,114 +1,127 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
-title Smart Banking Transaction and Portfolio Management System (SB-TMS) - Capstone Launcher
+title SB-TMS - Smart Banking System
 
-echo ================================================================================
-echo   RAMRAO ADIK INSTITUTE OF TECHNOLOGY, NERUL - DEPT OF COMPUTER ENGG.
-echo   SMART BANKING TRANSACTION AND ACCOUNT PORTFOLIO MANAGEMENT SYSTEM (SB-TMS)
-echo   Capstone Project: Object-Oriented Java and Relational DBMS
-echo   Candidate: Anish Vyapari - Roll No: 25CA1012 - PRN: DY25ENGU0AIM012 - Batch: A/A1
-echo ================================================================================
-echo.
+:: This script can be run directly from the project/ directory
+:: For best results, use START.bat from the repository root
 
 set "PROJECT_DIR=%~dp0"
 cd /d "%PROJECT_DIR%"
 
-:: 1. Check for Java Runtime / JDK
-echo [1/5] Checking Java runtime environment...
-set "JAVA_CMD=java"
-set "JAVAC_CMD=javac"
+echo.
+echo  ============================================================================
+echo   SMART BANKING TRANSACTION ^& PORTFOLIO MANAGEMENT SYSTEM (SB-TMS)
+echo   Candidate: Anish Vyapari ^| PRN: DY25ENGU0AIM012 ^| Batch: A/A1
+echo  ============================================================================
+echo.
+
+:: --- Find Java ---
+set "JAVA_EXE=java"
+set "JAVAC_EXE=javac"
+set "JAVA_OK=0"
 
 where java >nul 2>&1
-if %ERRORLEVEL% neq 0 (
-    echo [WARNING] java command not found in current PATH. Searching common locations...
-    if exist "C:\Program Files\Microsoft\jdk-21.0.12.8-hotspot\bin\java.exe" (
-        set "PATH=C:\Program Files\Microsoft\jdk-21.0.12.8-hotspot\bin;!PATH!"
-        set "JAVA_CMD=C:\Program Files\Microsoft\jdk-21.0.12.8-hotspot\bin\java.exe"
-        set "JAVAC_CMD=C:\Program Files\Microsoft\jdk-21.0.12.8-hotspot\bin\javac.exe"
-    ) else if exist "C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot\bin\java.exe" (
-        set "PATH=C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot\bin;!PATH!"
-        set "JAVA_CMD=C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot\bin\java.exe"
-        set "JAVAC_CMD=C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot\bin\javac.exe"
-    ) else if exist "C:\Program Files\Java\jdk-21\bin\java.exe" (
-        set "PATH=C:\Program Files\Java\jdk-21\bin;!PATH!"
-        set "JAVA_CMD=C:\Program Files\Java\jdk-21\bin\java.exe"
-        set "JAVAC_CMD=C:\Program Files\Java\jdk-21\bin\javac.exe"
-    ) else if exist "C:\Program Files\Java\jdk-17\bin\java.exe" (
-        set "PATH=C:\Program Files\Java\jdk-17\bin;!PATH!"
-        set "JAVA_CMD=C:\Program Files\Java\jdk-17\bin\java.exe"
-        set "JAVAC_CMD=C:\Program Files\Java\jdk-17\bin\javac.exe"
-    ) else (
-        echo [CRITICAL ERROR] Java JDK was not detected on this computer!
-        echo Please install OpenJDK 17 or 21 from https://adoptium.net/
-        pause
-        exit /b 1
+if %ERRORLEVEL% equ 0 (
+    where javac >nul 2>&1
+    if !ERRORLEVEL! equ 0 (
+        set "JAVA_OK=1"
     )
 )
 
-for /f "tokens=3" %%g in ('%JAVA_CMD% -version 2^>^&1 ^| findstr /i "version"') do (
-    set "JAVA_VER=%%~g"
+:: Check for portable JDK one level up
+if "!JAVA_OK!"=="0" (
+    if exist "%PROJECT_DIR%..\portable-jdk\bin\java.exe" (
+        set "JAVA_EXE=%PROJECT_DIR%..\portable-jdk\bin\java.exe"
+        set "JAVAC_EXE=%PROJECT_DIR%..\portable-jdk\bin\javac.exe"
+        set "PATH=%PROJECT_DIR%..\portable-jdk\bin;!PATH!"
+        set "JAVA_OK=1"
+        echo  [INFO] Using portable JDK from repository.
+    )
 )
-echo [INFO] Active Java Version: %JAVA_VER%
 
-:: 2. Check and Create Required Directories
-echo [2/5] Initializing workspace directories...
+:: Search common locations
+if "!JAVA_OK!"=="0" (
+    for %%D in (
+        "C:\Program Files\Java"
+        "C:\Program Files\Microsoft"
+        "C:\Program Files\Eclipse Adoptium"
+        "C:\Program Files\AdoptOpenJDK"
+        "C:\Program Files\Zulu"
+        "C:\Program Files\Amazon Corretto"
+    ) do (
+        if "!JAVA_OK!"=="0" (
+            if exist %%D (
+                for /f "delims=" %%J in ('dir /b /s /a-d %%D\javac.exe 2^>nul') do (
+                    if "!JAVA_OK!"=="0" (
+                        set "JAVAC_EXE=%%J"
+                        set "JAVA_EXE=%%~dpJjava.exe"
+                        set "PATH=%%~dpJ;!PATH!"
+                        set "JAVA_OK=1"
+                    )
+                )
+            )
+        )
+    )
+)
+
+if "!JAVA_OK!"=="0" (
+    echo  [FATAL] Java JDK not found. Please run START.bat from the repo root instead.
+    echo          It will download Java automatically.
+    pause
+    exit /b 1
+)
+
+echo  [OK] Java found.
+
+:: --- Create directories ---
 if not exist "backend\bin" mkdir "backend\bin"
 if not exist "backend\lib" mkdir "backend\lib"
 if not exist "database" mkdir "database"
-if not exist "screenshots" mkdir "screenshots"
-if not exist "docs" mkdir "docs"
 
-:: 3. Verify SQLite JDBC and SLF4J Driver Jars
-echo [3/5] Verifying Relational DBMS drivers...
+:: --- Download drivers if missing ---
 if not exist "backend\lib\sqlite-jdbc.jar" (
-    echo [INFO] Downloading SQLite JDBC Driver...
-    curl.exe -L -o "backend\lib\sqlite-jdbc.jar" "https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/3.45.2.0/sqlite-jdbc-3.45.2.0.jar"
+    echo  [DOWNLOAD] SQLite JDBC...
+    curl.exe -fSL --retry 3 -o "backend\lib\sqlite-jdbc.jar" "https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/3.45.2.0/sqlite-jdbc-3.45.2.0.jar" 2>nul
 )
 if not exist "backend\lib\slf4j-api.jar" (
-    echo [INFO] Downloading SLF4J API Driver...
-    curl.exe -L -o "backend\lib\slf4j-api.jar" "https://repo1.maven.org/maven2/org/slf4j/slf4j-api/2.0.12/slf4j-api-2.0.12.jar"
+    echo  [DOWNLOAD] SLF4J API...
+    curl.exe -fSL --retry 3 -o "backend\lib\slf4j-api.jar" "https://repo1.maven.org/maven2/org/slf4j/slf4j-api/2.0.12/slf4j-api-2.0.12.jar" 2>nul
 )
 if not exist "backend\lib\slf4j-simple.jar" (
-    echo [INFO] Downloading SLF4J Simple Driver...
-    curl.exe -L -o "backend\lib\slf4j-simple.jar" "https://repo1.maven.org/maven2/org/slf4j/slf4j-simple/2.0.12/slf4j-simple-2.0.12.jar"
+    echo  [DOWNLOAD] SLF4J Simple...
+    curl.exe -fSL --retry 3 -o "backend\lib\slf4j-simple.jar" "https://repo1.maven.org/maven2/org/slf4j/slf4j-simple/2.0.12/slf4j-simple-2.0.12.jar" 2>nul
 )
 
-:: 4. Compile Backend if needed
-echo [4/5] Checking compilation status...
+:: --- Compile if needed ---
 if not exist "backend\bin\com\sbtms\Main.class" (
-    echo [INFO] Compiling SB-TMS Enterprise Java Architecture...
-    javac -encoding UTF-8 -cp "backend\lib\*;." -d "backend\bin" backend\src\com\sbtms\*.java backend\src\com\sbtms\model\*.java backend\src\com\sbtms\interfaces\*.java backend\src\com\sbtms\exception\*.java backend\src\com\sbtms\db\*.java backend\src\com\sbtms\service\*.java backend\src\com\sbtms\web\*.java backend\src\com\sbtms\cli\*.java
-    if %ERRORLEVEL% neq 0 (
-        echo [ERROR] Compilation failed.
+    echo  [BUILD] Compiling Java sources...
+    for /r "backend\src" %%f in (*.java) do set "SRCS=!SRCS! "%%f""
+    "!JAVAC_EXE!" -encoding UTF-8 -cp "backend\lib\*;." -d "backend\bin" !SRCS!
+    if !ERRORLEVEL! neq 0 (
+        echo  [ERROR] Compilation failed.
         pause
         exit /b 1
     )
-    echo [SUCCESS] Compilation completed successfully!
+    echo  [OK] Compiled.
 ) else (
-    echo [INFO] Compiled bytecode up to date in backend\bin.
+    echo  [OK] Classes already compiled.
 )
 
-:: 5. Clear any lingering process on port 8080
-echo [5/5] Ensuring Port 8080 is available...
-for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":8080" ^| findstr "LISTENING"') do (
-    echo [INFO] Terminating previous process PID %%a on port 8080...
-    taskkill /F /PID %%a >nul 2>&1
+:: --- Kill old server on port 8080 ---
+for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr ":8080 " ^| findstr "LISTENING"') do (
+    if "%%a" neq "0" taskkill /F /PID %%a >nul 2>&1
 )
 
 echo.
-echo ================================================================================
-echo   SERVER STARTING AT: http://localhost:8080/index.html
-echo   To Stop the Server: Close this terminal window or double-click stop.bat
-echo ================================================================================
+echo  Server starting at: http://localhost:8080/index.html
+echo  Close this window to stop the server.
 echo.
 
 start "" "http://localhost:8080/index.html"
-
-java -cp "backend\bin;backend\lib\*" com.sbtms.Main --port 8080
+"!JAVA_EXE!" -cp "backend\bin;backend\lib\*" com.sbtms.Main --port 8080
 
 if %ERRORLEVEL% neq 0 (
     echo.
-    echo [ERROR] Server terminated with error code %ERRORLEVEL%.
+    echo  [ERROR] Server crashed with code %ERRORLEVEL%.
 )
-echo.
 pause

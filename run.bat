@@ -1,5 +1,4 @@
 @echo off
-setlocal EnableExtensions
-title SB-TMS Launcher
-cd /d "%~dp0project"
-call run.bat
+:: Legacy launcher - redirects to START.bat
+cd /d "%~dp0"
+call START.bat

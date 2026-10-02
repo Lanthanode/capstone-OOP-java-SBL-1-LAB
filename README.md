@@ -1,7 +1,7 @@
 # Smart Banking Transaction and Account Portfolio Management System (SB-TMS)
 ### Enterprise Capstone Project: Object-Oriented Programming (Java) & Relational DBMS
 
-[![Java 21](https://img.shields.io/badge/Java-21%20LTS-orange.svg)](https://adoptium.net/)
+[![Java 17+](https://img.shields.io/badge/Java-17%2B%20LTS-orange.svg)](https://adoptium.net/)
 [![SQLite](https://img.shields.io/badge/DBMS-SQLite%203.45-blue.svg)](https://sqlite.org/)
 [![JDBC](https://img.shields.io/badge/Persistence-JDBC%20ACID-success.svg)](https://docs.oracle.com/en/java/javase/21/docs/api/java.sql/package-summary.html)
 [![Web](https://img.shields.io/badge/Frontend-HTML5%20%7C%20CSS3%20%7C%20ES6+-informational.svg)](http://localhost:8080)
@@ -21,35 +21,33 @@
 
 ---
 
-## 📌 Project Overview
-The **Smart Banking Transaction and Account Portfolio Management System (SB-TMS)** is an industrial-grade enterprise capstone application that transforms **SBL OOP Java Experiment 11** from an academic in-memory prototype into a resilient, multi-tier software system. 
+## 🚀 One-Click Launch (Works on ANY Windows PC — No Setup Required)
 
-It synthesizes object-oriented design patterns with **Relational Database Management System (DBMS)** persistence via **SQLite and JDBC**, strict **ACID transactional atomicity**, domain boundary invariant enforcement via custom checked exceptions, an embedded zero-dependency Java SE HTTP REST server, and a modern financial web dashboard.
-
----
-
-## 🚀 1-Click Launch (Zero Configuration)
-
-### 🪟 Windows (Recommended)
-Simply **double-click** the launcher script in the root directory:
+### Step 1: Clone the Repository
 ```cmd
-run.bat
+git clone https://github.com/Lanthanode/capstone-OOP-java-SBL-1-LAB.git
+cd capstone-OOP-java-SBL-1-LAB
 ```
-*What this script automatically does:*
-1. Locates OpenJDK 17/21 (searches local JDK paths, Adoptium, Microsoft OpenJDK, Oracle, or system PATH).
-2. Verifies and auto-bundles the SQLite JDBC Driver (`sqlite-jdbc.jar`) and logging libraries.
-3. Automatically compiles all pure Java classes into bytecode.
-4. Auto-clears port `8080` if previously occupied.
-5. Launches the backend embedded server and automatically opens `http://localhost:8080/index.html` in your default browser.
+
+### Step 2: Double-Click `START.bat`
+That's it. The script handles **everything** automatically:
+
+| What It Does | Details |
+|:---|:---|
+| ✅ **Finds Java** | Searches PATH, JAVA_HOME, Program Files, Registry — all major JDK distributions |
+| ✅ **Downloads Java** | If no JDK is found, auto-downloads a portable OpenJDK 21 (~200 MB, one-time) |
+| ✅ **Downloads Drivers** | SQLite JDBC, SLF4J logging libraries — downloaded only if missing |
+| ✅ **Compiles Code** | Recompiles all Java source files fresh (prevents cross-machine bytecode conflicts) |
+| ✅ **Clears Port** | Kills any process already using port 8080 |
+| ✅ **Starts Server** | Launches the Java HTTP server on localhost:8080 |
+| ✅ **Opens Browser** | Waits for server to be healthy, then auto-opens the dashboard |
+| ✅ **2nd Run Detection** | Re-running skips downloads, recompiles fresh, and launches instantly |
 
 ### 🛑 Stopping the Server
-Double-click:
-```cmd
-stop.bat
-```
+- **Close the terminal window**, OR
+- Double-click `STOP.bat`
 
 ### 💻 Standalone Interactive CLI (Experiment 11 Terminal Mode)
-Double-click:
 ```cmd
 project\run-cli.bat
 ```
@@ -59,6 +57,13 @@ project\run-cli.bat
 chmod +x run.sh project/run.sh
 ./run.sh
 ```
+
+---
+
+## 📌 Project Overview
+The **Smart Banking Transaction and Account Portfolio Management System (SB-TMS)** is an industrial-grade enterprise capstone application that transforms **SBL OOP Java Experiment 11** from an academic in-memory prototype into a resilient, multi-tier software system. 
+
+It synthesizes object-oriented design patterns with **Relational Database Management System (DBMS)** persistence via **SQLite and JDBC**, strict **ACID transactional atomicity**, domain boundary invariant enforcement via custom checked exceptions, an embedded zero-dependency Java SE HTTP REST server, and a modern financial web dashboard.
 
 ---
 
@@ -108,20 +113,23 @@ SB-TMS is architected as an enterprise-grade 5-tier system:
 ## 📁 Repository Directory Structure
 
 ```text
-dbms-capstone/
-├── run.bat                               # Root 1-click Windows launcher
-├── stop.bat                              # Clean port 8080 shutdown script
-├── run.sh                                # Root Linux / macOS launcher script
-├── README.md                             # Repository technical presentation
-├── Capstone Project Report.docx          # Official college-formatted Capstone Report (18 Pages)
-├── Capstone_Project_Documentation.pdf    # Publication-grade technical PDF report
-├── SBL_OOP_Java_Lab_Record_Anish_Vyapari.pdf # Reference lab record manual
+capstone-OOP-java-SBL-1-LAB/
+├── START.bat                             # ⭐ MAIN LAUNCHER — double-click this!
+├── STOP.bat                              # Stop the running server
+├── run.bat                               # Legacy launcher (redirects to START.bat)
+├── stop.bat                              # Legacy stop (redirects to STOP.bat)
+├── run.sh                                # Linux / macOS launcher
+├── README.md                             # This file
+├── .gitignore                            # Git exclusions
+├── Capstone Project Report.docx          # Official RAIT-formatted Capstone Report
+├── Capstone_Project_Documentation.pdf    # Technical PDF report
+├── SBL_OOP_Java_Lab_Record_Anish_Vyapari.pdf
 └── project/
-    ├── run.bat                           # Project Windows launcher
-    ├── setup.bat                         # Project compiler and build script
-    ├── run-cli.bat                       # Standalone CLI console runner
-    ├── stop.bat                          # Port 8080 shutdown utility
-    ├── run.sh                            # Project Linux/macOS launcher
+    ├── run.bat                           # Alternative launcher from project dir
+    ├── setup.bat                         # Manual build script
+    ├── run-cli.bat                       # CLI console runner
+    ├── stop.bat                          # Port shutdown utility
+    ├── run.sh                            # Linux/macOS launcher
     ├── backend/
     │   ├── src/com/sbtms/
     │   │   ├── Main.java                 # Master application entry point
@@ -130,31 +138,36 @@ dbms-capstone/
     │   │   ├── exception/                # Domain-specific checked exceptions
     │   │   ├── db/                       # DatabaseManager, AccountDAOImpl (JDBC, SQL)
     │   │   ├── service/                  # BankingService (ACID Transfers), AnalyticsService
-    │   │   ├── web/                      # Embedded Java HTTP REST Server & JSON parser
+    │   │   ├── web/                      # Embedded Java HTTP Server & JSON parser
     │   │   └── cli/                      # Standalone CLI interface (Experiment 11 mode)
-    │   ├── lib/                          # Pre-bundled drivers (sqlite-jdbc, slf4j)
-    │   └── bin/                          # Pre-compiled JVM bytecode (.class files)
+    │   └── lib/                          # Auto-downloaded drivers (sqlite-jdbc, slf4j)
     ├── database/
     │   ├── schema.sql                    # Normalized Relational DDL tables
-    │   ├── seed.sql                      # Experiment 11 baseline seed data
-    │   └── sbtms_bank.db                 # Active SQLite relational database
-    ├── frontend/
-    │   ├── index.html                    # Modern responsive banking dashboard
-    │   ├── css/styles.css                # Dark/light theme design system
-    │   ├── css/passbook.css              # Bank passbook statement styling
-    │   ├── js/app.js                     # Application frontend controller
-    │   ├── js/transactions.js            # Transaction & modal submission handlers
-    │   ├── js/passbook.js                # 2D passbook statement generator
-    │   └── js/sql-console.js             # Live interactive SQL inspection terminal
-    ├── docs/                             # Architecture diagrams, ER schema, flowcharts
-    └── screenshots/                      # 7 high-resolution application screenshots
+    │   └── seed.sql                      # Experiment 11 baseline seed data
+    └── frontend/
+        ├── index.html                    # Modern responsive banking dashboard
+        ├── css/                          # Dark/light theme design system
+        ├── js/                           # Application controllers
+        └── assets/                       # Static assets
 ```
 
 ---
 
+## 🔧 Troubleshooting
+
+| Problem | Solution |
+|:---|:---|
+| `START.bat` closes immediately | Right-click → "Run as Administrator" |
+| Java not found & download fails | Install JDK manually from [adoptium.net](https://adoptium.net/) |
+| Port 8080 already in use | `STOP.bat` will kill the old process, or run `START.bat` again |
+| Page shows 404 | Make sure you're accessing `http://localhost:8080/index.html` |
+| Antivirus blocks download | Temporarily disable or whitelist `curl.exe` and `powershell.exe` |
+
+---
+
 ## 📄 Academic Deliverables
-- **DOCX Report:** [`Capstone Project Report.docx`](Capstone%20Project%20Report.docx) (Compliant with official RAIT template, exclusively authored by Anish Vyapari, containing all chapters, 5 diagrams, 4 code listings, and 7 live screenshots).
-- **PDF Report:** [`Capstone_Project_Documentation.pdf`](Capstone_Project_Documentation.pdf) (15-page publication-grade PDF specification).
+- **DOCX Report:** [`Capstone Project Report.docx`](Capstone%20Project%20Report.docx)
+- **PDF Report:** [`Capstone_Project_Documentation.pdf`](Capstone_Project_Documentation.pdf)
 
 ---
 
