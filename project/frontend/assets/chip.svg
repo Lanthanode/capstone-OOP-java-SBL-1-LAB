@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 40" width="50" height="40">
+  <defs>
+    <linearGradient id="goldChip" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047"/>
+      <stop offset="50%" stop-color="#CA8A04"/>
+      <stop offset="100%" stop-color="#EAB308"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="46" height="36" rx="6" fill="url(#goldChip)" stroke="#A16207" stroke-width="1.5"/>
+  <!-- Circuit lines -->
+  <line x1="2" y1="14" x2="20" y2="14" stroke="#854D0E" stroke-width="1.2"/>
+  <line x1="2" y1="26" x2="20" y2="26" stroke="#854D0E" stroke-width="1.2"/>
+  <line x1="30" y1="14" x2="48" y2="14" stroke="#854D0E" stroke-width="1.2"/>
+  <line x1="30" y1="26" x2="48" y2="26" stroke="#854D0E" stroke-width="1.2"/>
+  <rect x="20" y="10" width="10" height="20" rx="3" fill="#B45309" stroke="#78350F" stroke-width="1"/>
+  <line x1="25" y1="2" x2="25" y2="10" stroke="#854D0E" stroke-width="1.2"/>
+  <line x1="25" y1="30" x2="25" y2="38" stroke="#854D0E" stroke-width="1.2"/>
+</svg>

@@ -1,0 +1,18 @@
+# IDE and OS files
+.idea/
+.vscode/
+*.swp
+*.bak
+*.tmp
+*.log
+~$*
+.DS_Store
+Thumbs.db
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Temporary scratch
+project/scratch/
+project/*.log

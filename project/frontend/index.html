@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Banking & Transaction System (SB-TMS) - Capstone Project</title>
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/passbook.css">
+</head>
+<body>
+  <!-- Ambient background lighting -->
+  <div class="bg-ambient">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="nav-container">
+      <div class="brand-wrapper">
+        <img src="assets/logo.svg" alt="SB-TMS Logo" class="brand-logo">
+        <div class="brand-text">
+          <h1>Smart Banking TMS</h1>
+          <p>Enterprise OOP & Relational DBMS</p>
+        </div>
+      </div>
+
+      <div class="header-badges">
+        <div class="student-tag">
+          <span class="dot"></span>
+          <span>Anish Vyapari (25CA1012 | DY25ENGU0AIM012 | A/A1)</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="btn-academic" onclick="openModal('modalAcademicInfo')">
+          <span>📘</span>
+          <span>Exp 11 Blueprint</span>
+        </button>
+        <button class="btn-icon" id="btnResetDb" title="Reset to Experiment 11 Benchmark Seed Data">
+          <span>🔄</span>
+        </button>
+        <button class="btn-icon" id="themeToggleBtn" title="Toggle Light/Dark Theme">
+          <span>☀️</span>
+        </button>
+        <button class="btn-primary" onclick="openNewAccountModal()">
+          <span>+</span>
+          <span>New Account</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Application Body -->
+  <main>
+    <!-- Navigation Tabs -->
+    <nav class="tabs-navigation">
+      <button class="tab-btn active" data-tab="dashboard">
+        <span>📊</span>
+        <span>Portfolio Dashboard</span>
+        <span class="badge-pill" id="badge-total-accounts">4 Accounts</span>
+      </button>
+      <button class="tab-btn" data-tab="transactions">
+        <span>💳</span>
+        <span>Transaction Terminal</span>
+      </button>
+      <button class="tab-btn" data-tab="passbook">
+        <span>📖</span>
+        <span>Official Passbook (2D Ledger)</span>
+      </button>
+      <button class="tab-btn" data-tab="quarter-end">
+        <span>⚡</span>
+        <span>Quarter-End Servicing</span>
+      </button>
+      <button class="tab-btn" data-tab="sql-inspector">
+        <span>🗄️</span>
+        <span>SQL DBMS Inspector</span>
+      </button>
+      <button class="tab-btn" data-tab="audit-logs">
+        <span>🛡️</span>
+        <span>Audit Trail & Security</span>
+      </button>
+    </nav>
+
+    <!-- Top Key Financial Metrics Row -->
+    <section class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-title">Total Portfolio Deposits</span>
+          <div class="metric-icon-box">💰</div>
+        </div>
+        <div class="metric-value" id="metric-total-deposits">Rs. 0.00</div>
+        <div class="metric-sub">Across Savings, Current & Term FDs</div>
+      </div>
+
+      <div class="metric-card emerald">
+        <div class="metric-header">
+          <span class="metric-title">Net Asset Value (NAV)</span>
+          <div class="metric-icon-box">📈</div>
+        </div>
+        <div class="metric-value" id="metric-net-asset">Rs. 0.00</div>
+        <div class="metric-sub">Total Assets less Overdraft Liabilities</div>
+      </div>
+
+      <div class="metric-card amber">
+        <div class="metric-header">
+          <span class="metric-title">Commercial Overdraft Drawn</span>
+          <div class="metric-icon-box">⚡</div>
+        </div>
+        <div class="metric-value" id="metric-overdraft-usage">Rs. 0.00</div>
+        <div class="metric-sub" id="metric-overdraft-capacity">Limit: Rs. 50,000.00</div>
+      </div>
+
+      <div class="metric-card indigo">
+        <div class="metric-header">
+          <span class="metric-title">Liquidity & Reserve Health</span>
+          <div class="metric-icon-box">🛡️</div>
+        </div>
+        <div class="metric-value" id="metric-liquidity-ratio">100%</div>
+        <div class="metric-sub" id="badge-total-transactions">Transactions Logged</div>
+      </div>
+    </section>
+
+    <!-- TAB 1: DASHBOARD & PORTFOLIO -->
+    <section class="tab-pane active" id="tab-dashboard">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span>Active Banking Portfolio</span>
+          <span class="badge">Relational SQL Storage</span>
+        </h2>
+        <div>
+          <button class="btn-primary" onclick="openNewAccountModal()">+ Provision Account</button>
+        </div>
+      </div>
+
+      <div class="accounts-grid" id="accountsGrid">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- TAB 2: TRANSACTION TERMINAL -->
+    <section class="tab-pane" id="tab-transactions">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span>Transaction Execution Terminal</span>
+          <span class="badge">ACID & Domain Rule Guard</span>
+        </h2>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.5rem;">
+        <!-- Quick Deposit Form -->
+        <div class="form-card">
+          <h3 style="margin-bottom:1rem; color:var(--accent-emerald); font-size:1.1rem;">Deposit Funds</h3>
+          <form id="formDeposit">
+            <div class="form-group" style="margin-bottom:1rem;">
+              <label>Select Target Account</label>
+              <select class="form-control" id="depositAccSelect" required></select>
+            </div>
+            <div class="form-group" style="margin-bottom:1rem;">
+              <label>Amount (Rs.)</label>
+              <input type="number" step="0.01" min="1" class="form-control" id="depositAmountInput" placeholder="e.g. 5000" required>
+            </div>
+            <div class="form-group" style="margin-bottom:1.5rem;">
+              <label>Reference Memo / Particulars</label>
+              <input type="text" class="form-control" id="depositNoteInput" placeholder="e.g. Counter Cash Deposit">
+            </div>
+            <button type="submit" class="btn-primary btn-success" style="width:100%; justify-content:center;">
+              Confirm Deposit
+            </button>
+          </form>
+        </div>
+
+        <!-- Quick Withdrawal Form -->
+        <div class="form-card">
+          <h3 style="margin-bottom:1rem; color:var(--accent-rose); font-size:1.1rem;">Withdraw Funds</h3>
+          <form id="formWithdraw">
+            <div class="form-group" style="margin-bottom:1rem;">
+              <label>Select Account</label>
+              <select class="form-control" id="withdrawAccSelect" required></select>
+            </div>
+            <div class="form-group" style="margin-bottom:1.5rem;">
+              <label>Amount (Rs.)</label>
+              <input type="number" step="0.01" min="1" class="form-control" id="withdrawAmountInput" placeholder="e.g. 2000" required>
+              <small style="color:var(--text-muted); font-size:0.72rem; margin-top:0.3rem;">
+                * Enforces Savings min balance (Rs. 2,000) & Current overdraft limit.
+              </small>
+            </div>
+            <button type="submit" class="btn-primary" style="background:var(--accent-rose); width:100%; justify-content:center;">
+              Dispense Funds
+            </button>
+          </form>
+        </div>
+
+        <!-- Inter-Account Wire Transfer Form -->
+        <div class="form-card" style="grid-column: 1 / -1;">
+          <h3 style="margin-bottom:1rem; color:var(--accent-blue); font-size:1.1rem;">Inter-Account Wire Transfer (Atomic ACID Execution)</h3>
+          <form id="formTransfer">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Source Account (Sender)</label>
+                <select class="form-control" id="transferSourceSelect" required></select>
+              </div>
+              <div class="form-group">
+                <label>Destination Account (Recipient)</label>
+                <select class="form-control" id="transferDestSelect" required></select>
+              </div>
+              <div class="form-group">
+                <label>Transfer Amount (Rs.)</label>
+                <input type="number" step="0.01" min="1" class="form-control" id="transferAmountInput" placeholder="e.g. 15000" required>
+              </div>
+              <div class="form-group">
+                <label>Transfer Purpose / Memo</label>
+                <input type="text" class="form-control" id="transferMemoInput" placeholder="e.g. Academic Semester Fee Support">
+              </div>
+            </div>
+            <button type="submit" class="btn-primary" style="justify-content:center;">
+              Execute Atomic Wire Transfer
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: PASSBOOK & 2D LEDGER -->
+    <section class="tab-pane" id="tab-passbook">
+      <div class="section-header no-print">
+        <h2 class="section-title">
+          <span>Official Passbook Statement</span>
+          <span class="badge">2D Array Ledger</span>
+        </h2>
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+          <select class="form-control" id="passbookAccSelect" style="width:260px;"></select>
+          <select class="form-control" id="passbookFilterType" style="width:140px;">
+            <option value="ALL">All Types</option>
+            <option value="DEP">Deposits</option>
+            <option value="WDL">Withdrawals</option>
+            <option value="TRANSFER">Transfers</option>
+            <option value="INT">Interest</option>
+          </select>
+          <button class="btn-primary" id="btnPrintPassbook">🖨️ Print</button>
+          <button class="btn-primary" style="background:#475569;" id="btnExportPassbookCsv">📥 CSV</button>
+        </div>
+      </div>
+
+      <div id="passbookContainer">
+        <!-- Rendered dynamically by passbook.js -->
+      </div>
+    </section>
+
+    <!-- TAB 4: QUARTER-END SERVICING -->
+    <section class="tab-pane" id="tab-quarter-end">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span>Runtime Polymorphic End-of-Quarter Servicing</span>
+          <span class="badge">Dynamic Method Dispatch</span>
+        </h2>
+      </div>
+
+      <div class="form-card">
+        <div style="margin-bottom:1.5rem;">
+          <h3 style="font-size:1.15rem; margin-bottom:0.5rem;">Automated Multi-Account Quarterly Financial Servicing</h3>
+          <p style="color:var(--text-secondary); font-size:0.88rem; line-height:1.6;">
+            In direct alignment with <strong>Experiment 11 Step 5</strong>, this subsystem processes quarterly interest accrual and fee levies across heterogeneous account types using <strong>Dynamic Method Dispatch</strong> (<code style="background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:4px;">for (Account acc : portfolio) acc.applyPeriodicInterest();</code>).
+          </p>
+          <ul style="margin-top:0.75rem; margin-left:1.5rem; color:var(--text-secondary); font-size:0.85rem; line-height:1.7;">
+            <li><strong>SavingsAccount:</strong> Accrues quarterly credit calculated at <strong>4.25% p.a.</strong> (<code style="color:var(--accent-emerald);">balance * (rate / 100) / 4</code>).</li>
+            <li><strong>CurrentAccount:</strong> Evaluates commercial overdraft usage and levies a <strong>3.0% fee</strong> on active credit drawn.</li>
+            <li><strong>FixedDepositAccount:</strong> Computes compounding interest yield for term maturity.</li>
+          </ul>
+        </div>
+
+        <button class="btn-primary btn-success" id="btnQuarterEndBatch" style="padding:0.85rem 1.75rem; font-size:0.95rem;">
+          ⚡ Run End-of-Quarter Servicing (Runtime Polymorphism)
+        </button>
+
+        <div id="batchResultsBox"></div>
+      </div>
+    </section>
+
+    <!-- TAB 5: SQL DBMS INSPECTOR -->
+    <section class="tab-pane" id="tab-sql-inspector">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span>Relational DBMS & SQL Live Inspector</span>
+          <span class="badge">SQLite / Pure JDBC</span>
+        </h2>
+      </div>
+
+      <div class="sql-editor-container">
+        <div class="sql-toolbar">
+          <span style="font-size:0.78rem; font-weight:700; color:var(--accent-blue); text-transform:uppercase;">Quick Benchmark Queries:</span>
+          <div class="quick-sql-chips">
+            <span class="chip-sql" data-sql="SELECT * FROM ACCOUNTS;">Accounts Table</span>
+            <span class="chip-sql" data-sql="SELECT * FROM TRANSACTIONS ORDER BY timestamp DESC LIMIT 20;">Recent Transactions</span>
+            <span class="chip-sql" data-sql="SELECT account_type, COUNT(*) AS total_accs, SUM(balance) AS total_deposits FROM ACCOUNTS GROUP BY account_type;">Balance By Type</span>
+            <span class="chip-sql" data-sql="SELECT * FROM AUDIT_LOGS ORDER BY timestamp DESC LIMIT 15;">Audit Logs</span>
+            <span class="chip-sql" data-sql="SELECT * FROM BENEFICIARIES;">Beneficiaries</span>
+            <span class="chip-sql" data-sql="SELECT name, sql FROM sqlite_master WHERE type='table';">Schema DDL</span>
+          </div>
+        </div>
+        <textarea class="sql-textarea" id="sqlQueryTextarea" spellcheck="false">SELECT * FROM ACCOUNTS;</textarea>
+        <div style="background:#111827; padding:0.6rem 1rem; border-top:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:0.75rem; color:var(--text-muted);">Press Ctrl+Enter to execute SQL query</span>
+          <button class="btn-primary" id="btnRunSql" style="padding:0.45rem 1.1rem; font-size:0.8rem;">
+            ▶ Execute SQL
+          </button>
+        </div>
+      </div>
+
+      <div id="sqlResultsContainer">
+        <!-- Rendered by sql-console.js -->
+      </div>
+    </section>
+
+    <!-- TAB 6: AUDIT TRAIL & SECURITY -->
+    <section class="tab-pane" id="tab-audit-logs">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span>Security & Regulatory Audit Trail</span>
+          <span class="badge">Non-Repudiation</span>
+        </h2>
+        <button class="btn-primary" onclick="loadAuditLogs()">Refresh Audit Trail</button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>LOG ID</th>
+              <th>ACTION</th>
+              <th>ACCOUNT</th>
+              <th>OPERATION DETAILS</th>
+              <th>STATUS</th>
+              <th>TIMESTAMP</th>
+            </tr>
+          </thead>
+          <tbody id="auditLogsTbody">
+            <!-- Rendered by app.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL: NEW ACCOUNT -->
+  <div class="modal-backdrop" id="modalNewAccount">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Provision New Banking Account</h3>
+        <button class="modal-close" onclick="closeModal('modalNewAccount')">&times;</button>
+      </div>
+      <form id="formNewAccount">
+        <div class="modal-body">
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label>Account Type</label>
+            <select class="form-control" id="newAccType" required>
+              <option value="SAVINGS">Savings Account (4.25% p.a. | Min Bal: Rs. 2,000)</option>
+              <option value="CURRENT">Current Account (Commercial Overdraft: Rs. 50,000)</option>
+              <option value="FIXED_DEPOSIT">Fixed Deposit Term Investment (7.50% p.a. | 12 Months)</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label>Account Number (Unique ID)</label>
+            <input type="text" class="form-control" id="newAccNumber" placeholder="e.g. SB-2048-IN" required>
+          </div>
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label>Account Holder Full Name</label>
+            <input type="text" class="form-control" id="newAccHolder" placeholder="e.g. Anish Vyapari" required>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" class="form-control" id="newAccEmail" placeholder="client@example.com">
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="text" class="form-control" id="newAccPhone" placeholder="+91 98000 00000">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Initial Opening Deposit (Rs.)</label>
+            <input type="number" step="0.01" min="0" class="form-control" id="newAccDeposit" placeholder="e.g. 10000" value="5000">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-card-action" style="padding:0.6rem 1.2rem;" onclick="closeModal('modalNewAccount')">Cancel</button>
+          <button type="submit" class="btn-primary">Provision Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: DEPOSIT -->
+  <div class="modal-backdrop" id="modalDeposit" onclick="if(event.target === this) closeModal('modalDeposit')">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modalDepositTitle">Deposit Funds</h3>
+        <button class="modal-close" onclick="closeModal('modalDeposit')">&times;</button>
+      </div>
+      <form id="formModalDeposit">
+        <div class="modal-body">
+          <div style="background:rgba(59, 130, 246, 0.08); border:1px solid rgba(59, 130, 246, 0.25); border-radius:var(--radius-sm); padding:0.9rem; margin-bottom:1.25rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+              <span style="font-size:0.8rem; color:var(--text-secondary);">Target Account:</span>
+              <strong id="modalDepositAccDisplay" style="color:var(--text-primary); font-family:monospace; font-size:0.95rem;">SB-1012-IN</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+              <span style="font-size:0.8rem; color:var(--text-secondary);">Account Holder:</span>
+              <span id="modalDepositHolderName" style="color:var(--text-primary); font-weight:600; font-size:0.85rem;">Anish Vyapari</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:0.8rem; color:var(--text-secondary);">Current Balance:</span>
+              <span id="modalDepositCurrentBal" style="font-size:1.05rem; font-weight:700; color:var(--accent-emerald);">Rs. 50,000.00</span>
+            </div>
+          </div>
+          <input type="hidden" id="modalDepositAccInput" value="">
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label>Deposit Amount (Rs.)</label>
+            <input type="number" step="0.01" min="1" class="form-control" id="modalDepositAmountInput" placeholder="e.g. 5000" required autofocus>
+          </div>
+          <div class="form-group">
+            <label>Narration / Reference Note</label>
+            <input type="text" class="form-control" id="modalDepositNoteInput" placeholder="Cash counter deposit / Salary credit" value="Cash Deposit">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-card-action" style="padding:0.6rem 1.2rem;" onclick="closeModal('modalDeposit')">Cancel</button>
+          <button type="submit" class="btn-primary">Confirm & Credit Deposit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: WITHDRAW (WITH DOMAIN RULE ENFORCEMENT) -->
+  <div class="modal-backdrop" id="modalWithdraw" onclick="if(event.target === this) closeModal('modalWithdraw')">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modalWithdrawTitle">Withdraw Funds</h3>
+        <button class="modal-close" onclick="closeModal('modalWithdraw')">&times;</button>
+      </div>
+      <form id="formModalWithdraw">
+        <div class="modal-body">
+          <div style="background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.25); border-radius:var(--radius-sm); padding:0.9rem; margin-bottom:1.25rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+              <span style="font-size:0.8rem; color:var(--text-secondary);">Source Account:</span>
+              <strong id="modalWithdrawAccDisplay" style="color:var(--text-primary); font-family:monospace; font-size:0.95rem;">SB-1012-IN</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+              <span style="font-size:0.8rem; color:var(--text-secondary);">Account Holder:</span>
+              <span id="modalWithdrawHolderName" style="color:var(--text-primary); font-weight:600; font-size:0.85rem;">Anish Vyapari</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+              <span style="font-size:0.8rem; color:var(--text-secondary);">Available Funds:</span>
+              <span id="modalWithdrawCurrentBal" style="font-size:1.05rem; font-weight:700; color:var(--accent-emerald);">Rs. 48,000.00</span>
+            </div>
+            <div id="modalWithdrawRule" style="font-size:0.78rem; padding-top:0.4rem; border-top:1px dashed rgba(255,255,255,0.12);">
+              <!-- Dynamic rule injected by JS -->
+            </div>
+          </div>
+          <input type="hidden" id="modalWithdrawAccInput" value="">
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label>Withdrawal Amount (Rs.)</label>
+            <input type="number" step="0.01" min="1" class="form-control" id="modalWithdrawAmountInput" placeholder="e.g. 2000" required autofocus>
+          </div>
+          <div class="form-group">
+            <label>Narration / Reason</label>
+            <input type="text" class="form-control" id="modalWithdrawNoteInput" placeholder="ATM cash withdrawal" value="ATM Cash Withdrawal">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-card-action" style="padding:0.6rem 1.2rem;" onclick="closeModal('modalWithdraw')">Cancel</button>
+          <button type="submit" class="btn-primary" style="background:var(--accent-rose); border-color:var(--accent-rose);">Confirm & Dispense</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: WIRE TRANSFER (ACID TRANSACTION) -->
+  <div class="modal-backdrop" id="modalTransfer" onclick="if(event.target === this) closeModal('modalTransfer')">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modalTransferTitle">Atomic Inter-Account Wire Transfer (ACID)</h3>
+        <button class="modal-close" onclick="closeModal('modalTransfer')">&times;</button>
+      </div>
+      <form id="formModalTransfer">
+        <div class="modal-body">
+          <div style="background:rgba(99, 102, 241, 0.08); border:1px solid rgba(99, 102, 241, 0.25); border-radius:var(--radius-sm); padding:0.9rem; margin-bottom:1.25rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+              <span style="font-size:0.8rem; color:var(--text-secondary);">Source (Debit):</span>
+              <strong id="modalTransferSourceDisplay" style="color:var(--text-primary); font-family:monospace; font-size:0.95rem;">SB-1012-IN</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:0.8rem; color:var(--text-secondary);">Available Balance:</span>
+              <span id="modalTransferCurrentBal" style="font-size:1.05rem; font-weight:700; color:var(--accent-emerald);">Rs. 48,000.00</span>
+            </div>
+          </div>
+          <input type="hidden" id="modalTransferSourceInput" value="">
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label>Beneficiary / Destination Account (Credit)</label>
+            <select class="form-control" id="modalTransferDestSelect" required></select>
+          </div>
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label>Transfer Amount (Rs.)</label>
+            <input type="number" step="0.01" min="1" class="form-control" id="modalTransferAmountInput" placeholder="e.g. 5000" required>
+          </div>
+          <div class="form-group">
+            <label>Payment Reference / Memo</label>
+            <input type="text" class="form-control" id="modalTransferMemoInput" placeholder="Inter-account funds settlement" value="Online Wire Transfer">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-card-action" style="padding:0.6rem 1.2rem;" onclick="closeModal('modalTransfer')">Cancel</button>
+          <button type="submit" class="btn-primary" style="background:var(--accent-indigo); border-color:var(--accent-indigo);">Execute Atomic Wire</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ACADEMIC INFO / EXPERIMENT 11 EVOLUTION -->
+  <div class="modal-backdrop" id="modalAcademicInfo">
+    <div class="modal-dialog" style="max-width:750px;">
+      <div class="modal-header">
+        <h3>SBL OOP Java Experiment 11 → Capstone Project Evolution</h3>
+        <button class="modal-close" onclick="closeModal('modalAcademicInfo')">&times;</button>
+      </div>
+      <div class="modal-body" style="font-size:0.85rem; line-height:1.7; color:var(--text-secondary);">
+        <div style="background:rgba(59, 130, 246, 0.1); border:1px solid rgba(59, 130, 246, 0.3); border-radius:8px; padding:1rem; margin-bottom:1rem;">
+          <h4 style="color:#60A5FA; margin-bottom:0.25rem;">Candidate Academic Profile</h4>
+          <div><strong>Student:</strong> Anish Vyapari</div>
+          <div><strong>Roll No:</strong> 25CA1012 | <strong>PRN:</strong> DY25ENGU0AIM012 | <strong>Batch:</strong> A/A1</div>
+          <div><strong>Department:</strong> Department of Computer Engineering</div>
+          <div><strong>Institution:</strong> Ramrao Adik Institute of Technology (RAIT), Nerul, Navi Mumbai</div>
+          <div><strong>Course:</strong> SBL – Object Oriented Programming in Java (Semester 3)</div>
+        </div>
+
+        <h4 style="color:var(--text-primary); margin-bottom:0.3rem;">1. Core OOP Concepts Implemented</h4>
+        <ul style="margin-left:1.5rem; margin-bottom:1rem;">
+          <li><strong>Encapsulation:</strong> Private data fields with public accessors/mutators and state invariants.</li>
+          <li><strong>Inheritance:</strong> Base class <code style="color:var(--accent-blue);">Account</code> extended by <code style="color:var(--accent-emerald);">SavingsAccount</code>, <code style="color:var(--accent-amber);">CurrentAccount</code>, and <code style="color:var(--accent-cyan);">FixedDepositAccount</code>.</li>
+          <li><strong>Polymorphism:</strong> Method overloading (<code style="color:var(--accent-blue);">deposit(amt)</code>, <code style="color:var(--accent-blue);">deposit(amt, memo)</code>) and Runtime Dynamic Dispatch (<code style="color:var(--accent-emerald);">applyPeriodicInterest()</code>).</li>
+          <li><strong>Interfaces:</strong> Multiple contracts specified via <code style="color:var(--accent-blue);">TransactionProcessor</code>, <code style="color:var(--accent-emerald);">Auditable</code>, and <code style="color:var(--accent-cyan);">AccountDAO</code>.</li>
+          <li><strong>Custom Exception Boundaries:</strong> <code style="color:var(--accent-rose);">InsufficientFundsException</code> (ERR-BANK-001) and <code style="color:var(--accent-rose);">OverdraftExceededException</code> (ERR-BANK-002).</li>
+          <li><strong>Multi-Dimensional Arrays:</strong> Preserved 2D transaction ledger <code style="color:var(--accent-indigo);">String[100][4]</code> for passbook statement generation.</li>
+        </ul>
+
+        <h4 style="color:var(--text-primary); margin-bottom:0.3rem;">2. Evolution into Capstone with DBMS & SQL</h4>
+        <p>
+          While Experiment 11 relied purely on transient in-memory memory arrays, this Capstone elevates the architecture into an industrial-grade enterprise solution by integrating <strong>Relational DBMS Persistence via SQLite and standard Java JDBC</strong>. It enforces ACID transactions, parameterized prepared statements to eliminate SQL injection, structured audit trails, and a real-time responsive web dashboard powered by standard Java SE HTTP Server.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" onclick="closeModal('modalAcademicInfo')">Close Blueprint</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Alert Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="js/app.js"></script>
+  <script src="js/transactions.js"></script>
+  <script src="js/passbook.js"></script>
+  <script src="js/sql-console.js"></script>
+</body>
+</html>

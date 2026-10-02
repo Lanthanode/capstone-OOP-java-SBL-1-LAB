@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SB-TMS Capstone Technical Documentation</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 16mm 18mm 16mm;
+      @bottom-right {
+        content: counter(page);
+      }
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #0F172A;
+      background: #FFFFFF;
+      line-height: 1.55;
+      font-size: 10pt;
+    }
+
+    .cover-page {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2.5rem 1rem;
+      border: 3px double #1E3A8A;
+      text-align: center;
+      page-break-after: always;
+    }
+
+    .inst-header h2 {
+      font-size: 14pt;
+      font-weight: 800;
+      color: #1E3A8A;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .inst-header p {
+      font-size: 10pt;
+      color: #475569;
+      margin-top: 0.2rem;
+    }
+
+    .cover-title-box {
+      margin: 3rem 0;
+    }
+
+    .cover-badge {
+      display: inline-block;
+      background: #EFF6FF;
+      color: #2563EB;
+      border: 1px solid #BFDBFE;
+      padding: 0.35rem 1rem;
+      border-radius: 20px;
+      font-size: 9pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+    }
+
+    .cover-title {
+      font-size: 22pt;
+      font-weight: 800;
+      color: #0F172A;
+      line-height: 1.25;
+      margin-bottom: 0.75rem;
+    }
+
+    .cover-subtitle {
+      font-size: 12pt;
+      color: #64748B;
+      font-weight: 500;
+    }
+
+    .candidate-card {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      padding: 1.25rem 2rem;
+      margin: 1.5rem auto;
+      max-width: 500px;
+      text-align: left;
+    }
+
+    .candidate-card table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10pt;
+    }
+
+    .candidate-card td {
+      padding: 0.35rem 0.5rem;
+    }
+
+    .candidate-card td.lbl {
+      color: #64748B;
+      font-weight: 600;
+      width: 40%;
+    }
+
+    .candidate-card td.val {
+      font-weight: 700;
+      color: #0F172A;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+
+    h1 {
+      font-size: 18pt;
+      font-weight: 800;
+      color: #1E3A8A;
+      border-bottom: 2px solid #2563EB;
+      padding-bottom: 0.4rem;
+      margin-top: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    h2 {
+      font-size: 13pt;
+      font-weight: 700;
+      color: #0F172A;
+      margin-top: 1.25rem;
+      margin-bottom: 0.6rem;
+      border-left: 4px solid #2563EB;
+      padding-left: 0.5rem;
+    }
+
+    h3 {
+      font-size: 11pt;
+      font-weight: 700;
+      color: #334155;
+      margin-top: 1rem;
+      margin-bottom: 0.4rem;
+    }
+
+    p {
+      margin-bottom: 0.75rem;
+      text-align: justify;
+    }
+
+    ul, ol {
+      margin-left: 1.5rem;
+      margin-bottom: 0.85rem;
+    }
+
+    li {
+      margin-bottom: 0.3rem;
+    }
+
+    .table-container {
+      width: 100%;
+      margin: 1rem 0;
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9pt;
+      margin-bottom: 1rem;
+    }
+
+    table.data-table th {
+      background: #1E293B;
+      color: #FFFFFF;
+      padding: 0.5rem 0.6rem;
+      text-align: left;
+      font-weight: 700;
+      border: 1px solid #334155;
+    }
+
+    table.data-table td {
+      padding: 0.45rem 0.6rem;
+      border: 1px solid #E2E8F0;
+    }
+
+    table.data-table tr:nth-child(even) td {
+      background: #F8FAFC;
+    }
+
+    .figure-box {
+      text-align: center;
+      margin: 1.25rem 0;
+      page-break-inside: avoid;
+    }
+
+    .figure-box img {
+      max-width: 95%;
+      border: 1px solid #CBD5E1;
+      border-radius: 6px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+
+    .figure-box .caption {
+      font-size: 8.5pt;
+      font-style: italic;
+      color: #475569;
+      margin-top: 0.4rem;
+      font-weight: 600;
+    }
+
+    .code-box {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-left: 4px solid #3B82F6;
+      border-radius: 4px;
+      padding: 0.75rem 1rem;
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 8pt;
+      line-height: 1.4;
+      margin: 0.85rem 0;
+      white-space: pre-wrap;
+      page-break-inside: avoid;
+    }
+
+    .info-callout {
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      border-left: 4px solid #2563EB;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      margin: 0.85rem 0;
+      font-size: 9pt;
+    }
+
+    .metric-badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 8pt;
+      font-weight: 700;
+    }
+    .badge-success { background: #DCFCE7; color: #166534; }
+    .badge-danger { background: #FEE2E2; color: #991B1B; }
+    .badge-info { background: #E0E7FF; color: #3730A3; }
+  </style>
+</head>
+<body>
+
+  <!-- COVER PAGE -->
+  <div class="cover-page">
+    <div class="inst-header">
+      <h2>Ramrao Adik Institute of Technology, Nerul</h2>
+      <p>Sector 7, Phase I, Nerul, Navi Mumbai, Maharashtra 400706</p>
+      <p style="font-weight: 600;">(Under the ambit of D. Y. Patil Deemed to be University)</p>
+      <p style="color: #2563EB; font-weight: 700; margin-top: 0.4rem;">Department of Computer Engineering</p>
+    </div>
+
+    <div class="cover-title-box">
+      <div class="cover-badge">Capstone Technical Specification & Architecture Manual</div>
+      <h1 class="cover-title">SMART BANKING TRANSACTION AND ACCOUNT PORTFOLIO MANAGEMENT SYSTEM (SB-TMS)</h1>
+      <p class="cover-subtitle">Enterprise Object-Oriented Java & Relational DBMS Architecture</p>
+    </div>
+
+    <div class="candidate-card">
+      <table>
+        <tr>
+          <td class="lbl">Student Name:</td>
+          <td class="val">Anish Vyapari</td>
+        </tr>
+        <tr>
+          <td class="lbl">PRN / USN:</td>
+          <td class="val">DY25ENGU0AIM012</td>
+        </tr>
+        <tr>
+          <td class="lbl">Roll Number:</td>
+          <td class="val">25CA1012</td>
+        </tr>
+        <tr>
+          <td class="lbl">Division / Batch:</td>
+          <td class="val">A / A1</td>
+        </tr>
+        <tr>
+          <td class="lbl">Course:</td>
+          <td class="val">SBL – OOP Java (Semester 3)</td>
+        </tr>
+        <tr>
+          <td class="lbl">Academic Cycle:</td>
+          <td class="val">2026 – 2027</td>
+        </tr>
+      </table>
+    </div>
+
+    <div style="font-size: 9pt; color: #64748B;">
+      Evaluation & Demonstration Document | October 2026
+    </div>
+  </div>
+
+  <!-- TABLE OF CONTENTS & EXECUTIVE SUMMARY -->
+  <div class="page-break"></div>
+  <h1>1. Executive Summary & Problem Context</h1>
+  <p>
+    The <strong>Smart Banking Transaction and Account Portfolio Management System (SB-TMS)</strong> is an industrial-grade banking 
+    platform designed and developed as the final Capstone Project for the <em>Skill Based Laboratory: Object-Oriented Programming in Java</em> course. 
+    Evolving directly from <strong>SBL OOP Java Experiment 11</strong>, SB-TMS expands the fundamental principles of encapsulation, inheritance, 
+    polymorphism, abstract contracts, and custom exception handling into an end-to-end, multi-tier enterprise software application.
+  </p>
+  <p>
+    In classical academic environments, student projects frequently simulate banking systems using transient memory variables or simple arrays. 
+    Consequently, state modifications are permanently lost upon process termination, inter-account transfers lack atomicity, and concurrency hazards 
+    are ignored. SB-TMS resolves these challenges by introducing:
+  </p>
+  <ul>
+    <li><strong>Persistent Relational DBMS:</strong> Complete database integration using SQLite via JDBC, persisting all accounts, transactions, beneficiaries, and regulatory audit records.</li>
+    <li><strong>ACID Transaction Guarantee:</strong> Atomic inter-account wire transfer mechanisms with strict commit/rollback boundaries to prevent balance leakage.</li>
+    <li><strong>Domain Boundary Trapping:</strong> Rigid enforcement of statutory reserve rules (Savings minimum balance Rs. 2,000.00) and commercial credit overdraft limits (Rs. 50,000.00) through custom checked exceptions.</li>
+    <li><strong>Dynamic Method Dispatch:</strong> Runtime polymorphic quarterly servicing that calculates interest credits and overdraft fee levies across heterogeneous account types in a single polymorphic invocation.</li>
+    <li><strong>Lightweight Embedded Web Architecture:</strong> A responsive web interface powered by standard Java SE's built-in HTTP server, requiring zero external server software and launching with a 1-click Windows batch script.</li>
+  </ul>
+
+  <h1>2. Experiment 11 → Capstone Evolution Matrix</h1>
+  <p>
+    The following matrix demonstrates how every software engineering concept introduced in Experiment 11 has been rigorously scaled into the final Capstone Project:
+  </p>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th style="width:25%;">Dimension</th>
+        <th style="width:37%;">Experiment 11 (Baseline)</th>
+        <th style="width:38%;">SB-TMS Capstone (Enterprise Expansion)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Persistence Engine</strong></td>
+        <td>Transient in-memory 2D array (<code>String[50][4]</code>).</td>
+        <td>Relational SQLite DBMS (<code>sbtms_bank.db</code>) with Foreign Keys, Indexes, and Constraints.</td>
+      </tr>
+      <tr>
+        <td><strong>Account Hierarchy</strong></td>
+        <td><code>Account</code> &rarr; <code>SavingsAccount</code>, <code>CurrentAccount</code>.</td>
+        <td>Added <code>FixedDepositAccount</code> (compound interest, tenure, premature penalty haircut).</td>
+      </tr>
+      <tr>
+        <td><strong>Wire Transfer Atomicity</strong></td>
+        <td>Sequential in-memory deduction and addition.</td>
+        <td>Full ACID JDBC transaction with <code>setAutoCommit(false)</code> and automatic <code>rollback()</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>Data Access Architecture</strong></td>
+        <td>Direct member variable updates.</td>
+        <td>Data Access Object (DAO) Pattern (<code>AccountDAOImpl</code>) with parameterized PreparedStatements.</td>
+      </tr>
+      <tr>
+        <td><strong>User Interface</strong></td>
+        <td>Standard Console Terminal text output.</td>
+        <td>Modern Responsive Web Dashboard + Passbook Print View + Standalone Interactive CLI.</td>
+      </tr>
+      <tr>
+        <td><strong>Audit & Security</strong></td>
+        <td>Basic terminal logging.</td>
+        <td>Dedicated <code>AUDIT_LOGS</code> table tracking IP, operation codes, timestamps, and status.</td>
+      </tr>
+      <tr>
+        <td><strong>Deployment & Automation</strong></td>
+        <td>Manual command line javac / java commands.</td>
+        <td>1-Click Windows BAT launcher (<code>run.bat</code>) with automated JDK detection and driver setup.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ARCHITECTURE -->
+  <div class="page-break"></div>
+  <h1>3. Multi-Tier Enterprise Architecture</h1>
+  <p>
+    SB-TMS implements a clean 5-tier architecture that isolates presentation, routing, domain rules, data access, and storage:
+  </p>
+  <div class="figure-box">
+    <img src="architecture_diagram.png" alt="System Architecture">
+    <div class="caption">Figure 3.1: Multi-Tier Enterprise Architecture of SB-TMS</div>
+  </div>
+  <ul>
+    <li><strong>Client Presentation Layer:</strong> Built with HTML5, Vanilla CSS3 (custom design system, dark/light themes, and glassmorphism), and modern JavaScript. Provides real-time metrics, debit card representations, transaction forms, passbook rendering, and an interactive SQL console.</li>
+    <li><strong>API & Gateway Layer:</strong> Powered by Java SE's embedded <code>com.sun.net.httpserver.HttpServer</code>. Exposes RESTful endpoints, parses payloads via lightweight <code>JsonHelper</code>, manages CORS, and serves frontend static assets.</li>
+    <li><strong>Domain & Business Logic Layer:</strong> Houses the core object-oriented banking models, enforcing business boundaries, interest accruals, overdraft fees, and orchestrating batch servicing.</li>
+    <li><strong>Data Access Layer (JDBC):</strong> Implements <code>AccountDAO</code> via <code>AccountDAOImpl</code>, executing parameterized SQL statements to ensure zero SQL injection vulnerabilities and managing transactional boundaries.</li>
+    <li><strong>Storage Engine:</strong> Relational SQLite engine (<code>sbtms_bank.db</code>) with enforced foreign key cascades, unique indexes, and domain check constraints.</li>
+  </ul>
+
+  <!-- UML & DOMAIN MODELING -->
+  <div class="page-break"></div>
+  <h1>4. Object-Oriented Domain Engineering</h1>
+  <p>
+    The domain model embodies the core object-oriented principles mandated by the SBL curriculum:
+  </p>
+  <div class="figure-box">
+    <img src="class_diagram.png" alt="UML Class Diagram">
+    <div class="caption">Figure 4.1: Comprehensive UML Class Diagram for SB-TMS</div>
+  </div>
+
+  <h2>Classical OOP Principles Implemented</h2>
+  <ul>
+    <li><strong>Encapsulation:</strong> All critical attributes (<code>balance</code>, <code>overdraftLimit</code>, <code>usedOverdraft</code>, <code>interestRate</code>) are declared <code>protected</code> or <code>private</code>. State modifications can only occur through controlled public methods that validate business invariants.</li>
+    <li><strong>Inheritance:</strong> The abstract class <code>Account</code> defines common banking state and implements baseline interfaces. Concrete specializations (<code>SavingsAccount</code>, <code>CurrentAccount</code>, <code>FixedDepositAccount</code>) inherit identity properties and reuse base constructors via <code>super(...)</code>.</li>
+    <li><strong>Compile-Time Polymorphism (Overloading):</strong> Multiple constructor overloads in <code>Account</code>, <code>SavingsAccount</code>, and <code>CurrentAccount</code>, alongside overloaded deposit methods: <code>deposit(double amount)</code> and <code>deposit(double amount, String referenceNote)</code>.</li>
+    <li><strong>Runtime Polymorphism (Dynamic Method Dispatch):</strong> The abstract method <code>applyPeriodicInterest()</code> is overridden across all subclasses. In batch operations, iterating through an <code>Account[]</code> array invokes the specific interest credit or overdraft fee calculation dynamically determined by each object's actual class.</li>
+    <li><strong>Abstraction & Interfaces:</strong> Three distinct interfaces delineate clear operational contracts: <code>TransactionProcessor</code> (transaction behavior), <code>Auditable</code> (passbook and audit generation), and <code>AccountDAO</code> (persistence operations).</li>
+    <li><strong>Custom Exception Handling:</strong> Domain rules are safeguarded by custom checked exceptions:
+      <ul>
+        <li><code>InsufficientFundsException</code> (<code>ERR-BANK-001</code>): Thrown when a Savings Account withdrawal attempts to breach the Rs. 2,000.00 statutory reserve.</li>
+        <li><code>OverdraftExceededException</code> (<code>ERR-BANK-002</code>): Thrown when a Current Account commercial withdrawal exceeds the Rs. 50,000.00 overdraft ceiling.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <!-- RELATIONAL DBMS SCHEMA -->
+  <div class="page-break"></div>
+  <h1>5. Relational DBMS Schema & SQL Design</h1>
+  <p>
+    To ensure durable persistence and high auditability, SB-TMS maintains a normalized relational schema with five dedicated tables:
+  </p>
+  <div class="figure-box">
+    <img src="er_diagram.png" alt="Relational ER Diagram">
+    <div class="caption">Figure 5.1: Relational Database Entity-Relationship Schema</div>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th style="width:20%;">Table Name</th>
+        <th style="width:30%;">Primary & Foreign Keys</th>
+        <th style="width:50%;">Description & Domain Constraints</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>ACCOUNTS</strong></td>
+        <td><code>account_number</code> (PK)</td>
+        <td>Stores account identity, type (<code>CHECK IN ('SAVINGS','CURRENT','FIXED_DEPOSIT')</code>), balance, interest rate, overdraft limit, and status.</td>
+      </tr>
+      <tr>
+        <td><strong>TRANSACTIONS</strong></td>
+        <td><code>txn_id</code> (PK), <code>account_number</code> (FK)</td>
+        <td>Relational ledger recording type (<code>OPEN</code>, <code>DEP</code>, <code>WDL</code>, <code>TRANSFER</code>, <code>INT</code>, <code>OD-LEVY</code>), amount, post-balance, and memo.</td>
+      </tr>
+      <tr>
+        <td><strong>BENEFICIARIES</strong></td>
+        <td><code>id</code> (PK), <code>source_account</code> (FK)</td>
+        <td>Pre-registered wire transfer recipients with IFSC codes and maximum per-transaction limits.</td>
+      </tr>
+      <tr>
+        <td><strong>AUDIT_LOGS</strong></td>
+        <td><code>log_id</code> (PK)</td>
+        <td>Security trail recording action codes, account references, client IP address, status, and timestamps.</td>
+      </tr>
+      <tr>
+        <td><strong>SYSTEM_METRICS</strong></td>
+        <td><code>metric_key</code> (PK)</td>
+        <td>System-level configuration parameters and deployment metadata.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- WORKFLOW & ATOMICITY -->
+  <div class="page-break"></div>
+  <h1>6. Transaction Logic & ACID Guarantees</h1>
+  <div class="figure-box">
+    <img src="transaction_flowchart.png" alt="Transaction Flowchart">
+    <div class="caption">Figure 6.1: Transaction Processing Logic and Exception Trapping Flowchart</div>
+  </div>
+
+  <p>
+    A critical contribution of SB-TMS is its atomic inter-account wire transfer workflow. When a client initiates a funds transfer between 
+    two accounts, the operation must execute with total atomicity—either both accounts update and two ledger entries are written, or 
+    the entire transaction is rolled back with zero balance change:
+  </p>
+
+  <div class="figure-box">
+    <img src="sequence_diagram.png" alt="Sequence Diagram">
+    <div class="caption">Figure 6.2: Inter-Account Wire Transfer Sequence with JDBC Transaction Demarcation</div>
+  </div>
+
+  <div class="code-box">
+// Core Atomic Transfer Implementation (BankingService.java)
+try (Connection conn = DatabaseManager.getConnection()) {
+    conn.setAutoCommit(false); // Begin ACID Transaction
+    try {
+        sender.withdraw(amount); // Enforces balance & overdraft limits
+        recipient.deposit(amount, "Wire from " + sender.getAccountNumber());
+        updateAccountWithConnection(conn, sender);
+        updateAccountWithConnection(conn, recipient);
+        insertTransactionWithConnection(conn, txnOut, sender.getAccountNumber(), "TRANSFER-OUT", amount);
+        insertTransactionWithConnection(conn, txnIn, recipient.getAccountNumber(), "TRANSFER-IN", amount);
+        conn.commit(); // Durable Atomic Commit
+    } catch (Exception ex) {
+        conn.rollback(); // Complete Rollback on any domain or database fault
+        throw new BankingException("ERR-TX-FAIL", "Transfer Rolled Back: " + ex.getMessage(), ex);
+    } finally {
+        conn.setAutoCommit(true);
+    }
+}</div>
+
+  <!-- APPLICATION INTERFACE & SCREENSHOTS -->
+  <div class="page-break"></div>
+  <h1>7. Live Application Interface & Visual Verification</h1>
+  <p>
+    The web interface was constructed with high aesthetic standards, featuring sleek financial cards, glassmorphic containers, 
+    crisp typographic hierarchy (Inter font), and rich data visualization. Below are real screenshots captured from the live application:
+  </p>
+
+  <div class="figure-box">
+    <img src="01_dashboard_overview.png" alt="Dashboard Screenshot">
+    <div class="caption">Figure 7.1: Live Portfolio Dashboard displaying Net Asset Value, Active Overdraft, and Card Visuals</div>
+  </div>
+
+  <div class="figure-box">
+    <img src="02_transaction_terminal.png" alt="Transaction Terminal">
+    <div class="caption">Figure 7.2: Transaction Execution Terminal (Deposit, Withdrawal, and Atomic Inter-Account Wire Transfer)</div>
+  </div>
+
+  <div class="page-break"></div>
+  <div class="figure-box">
+    <img src="03_passbook_statement.png" alt="Passbook Statement">
+    <div class="caption">Figure 7.3: Official Passbook Statement & 2D Array Ledger (Realistic Physical Booklet with Print & CSV Export)</div>
+  </div>
+
+  <div class="figure-box">
+    <img src="04_quarter_end_polymorphism.png" alt="Quarter-End Polymorphism">
+    <div class="caption">Figure 7.4: Runtime Polymorphic End-of-Quarter Servicing with Live Before/After Balance Breakdown</div>
+  </div>
+
+  <div class="page-break"></div>
+  <div class="figure-box">
+    <img src="05_sql_dbms_inspector.png" alt="SQL Inspector">
+    <div class="caption">Figure 7.5: Interactive Relational DBMS SQL Inspector with Real-Time Millisecond Benchmarking</div>
+  </div>
+
+  <div class="figure-box">
+    <img src="06_audit_trail_security.png" alt="Audit Trail">
+    <div class="caption">Figure 7.6: Security & Regulatory Compliance Audit Trail displaying Non-Repudiation Logs</div>
+  </div>
+
+  <div class="figure-box">
+    <img src="07_domain_exception_toast.png" alt="Exception Notification">
+    <div class="caption">Figure 7.7: Domain Boundary Rule Trapping (InsufficientFundsException Toast Alert in UI)</div>
+  </div>
+
+  <!-- HOW TO RUN & AUTOMATION -->
+  <div class="page-break"></div>
+  <h1>8. Standalone Demonstration & Windows Automation</h1>
+  <p>
+    A core requirement of the capstone project is <strong>fool-proof portability</strong>. The project is packaged with automated batch 
+    scripts that enable any professor or evaluator to run the application on a fresh Windows laptop with zero manual configuration.
+  </p>
+
+  <h2>Launcher Scripts Overview</h2>
+  <ul>
+    <li><strong><code>run.bat</code>:</strong> The primary 1-click launcher. Automatically detects Java (OpenJDK 17/21), downloads bundled SQLite JDBC and SLF4J drivers if missing, compiles Java classes, starts the embedded HTTP server on port 8080, and automatically launches the default web browser to <code>http://localhost:8080/index.html</code>.</li>
+    <li><strong><code>run-cli.bat</code>:</strong> Launches the standalone interactive terminal console, replicating the exact sequential demonstration from Experiment 11 (Account provisioning, deposits, withdrawals, wire transfer, exception testing, polymorphic quarter-end servicing, and 2D array passbook statements).</li>
+    <li><strong><code>setup.bat</code>:</strong> Standalone build and compilation utility.</li>
+    <li><strong><code>stop.bat</code>:</strong> Gracefully scans for and terminates background processes listening on port 8080.</li>
+  </ul>
+
+  <h2>Step-by-Step Evaluator Instructions</h2>
+  <ol>
+    <li>Copy the <code>project</code> folder to any location on a Windows laptop (e.g., Desktop or Downloads).</li>
+    <li>Double-click <strong><code>run.bat</code></strong>.</li>
+    <li>The script will verify the Java environment, compile the source code, and launch the web server.</li>
+    <li>The default web browser will open automatically displaying the live banking dashboard.</li>
+    <li>To test SQL execution directly, navigate to the <em>SQL DBMS Inspector</em> tab, select any benchmark query (e.g., <code>SELECT * FROM ACCOUNTS;</code>), and click <strong>Execute SQL</strong>.</li>
+    <li>To verify domain boundary exception trapping, attempt a withdrawal exceeding available funds; the system will immediately trap the rule and display the exact <code>InsufficientFundsException</code> error.</li>
+    <li>To terminate the server, simply close the command prompt window or double-click <strong><code>stop.bat</code></strong>.</li>
+  </ol>
+
+  <!-- CONCLUSION -->
+  <h1>9. Conclusion & Academic Impact</h1>
+  <p>
+    The Smart Banking Transaction and Account Portfolio Management System (SB-TMS) successfully achieves all academic and engineering 
+    goals mandated for the SBL Object-Oriented Programming in Java Capstone. By evolving the foundational concepts of Experiment 11 into a 
+    production-ready, multi-tier system with persistent relational DBMS storage, atomic wire transfers, runtime polymorphic servicing, and 
+    a modern web interface, the project provides a benchmark demonstration of rigorous software craftsmanship.
+  </p>
+  <div class="info-callout">
+    <strong>Author Attribution:</strong><br>
+    This project was designed, implemented, and documented by <strong>Anish Vyapari</strong> (Roll No: <strong>25CA1012</strong> | PRN: <strong>DY25ENGU0AIM012</strong> | Batch: <strong>A/A1</strong>), Department of Computer Engineering, Ramrao Adik Institute of Technology (RAIT), Nerul, Navi Mumbai.
+  </div>
+
+</body>
+</html>
