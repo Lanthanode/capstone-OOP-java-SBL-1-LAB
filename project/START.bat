@@ -1,460 +1,315 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
-title SB-TMS Smart Banking System - Auto Setup
+title SB-TMS Smart Banking System - Launcher
 color 0B
 
 echo.
-echo  ============================================================================
-echo  ^|                                                                          ^|
-echo  ^|   SMART BANKING TRANSACTION ^& ACCOUNT PORTFOLIO MANAGEMENT SYSTEM       ^|
-echo  ^|   SB-TMS Capstone Project - One-Click Auto Setup ^& Launch               ^|
-echo  ^|                                                                          ^|
-echo  ^|   Candidate : Anish Vyapari                                              ^|
-echo  ^|   Roll No   : 25CA1012  ^|  PRN: DY25ENGU0AIM012  ^|  Batch: A/A1         ^|
-echo  ^|   Institute : Ramrao Adik Institute of Technology, Nerul                 ^|
-echo  ^|   Department: Computer Engineering                                       ^|
-echo  ^|                                                                          ^|
-echo  ============================================================================
+echo ============================================================================
+echo   SMART BANKING TRANSACTION ^& ACCOUNT PORTFOLIO MANAGEMENT SYSTEM
+echo   SB-TMS Capstone Project ^| One-Click Universal Launcher
+echo.
+echo   Candidate : Anish Vyapari  ^| Roll No: 25CA1012 ^| PRN: DY25ENGU0AIM012
+echo   Batch     : A/A1           ^| Dept: Computer Engineering, RAIT Nerul
+echo ============================================================================
 echo.
 
 :: ============================================================================
-:: STEP 0: Find project directory (handles any extraction method)
+:: STEP 0: Find Project Root Directory
 :: ============================================================================
 set "ROOT=%~dp0"
 if "!ROOT:~-1!"=="\" set "ROOT=!ROOT:~0,-1!"
-set "PROJECT="
+set "P="
 
-:: Strategy 1: project folder right next to START.bat
-if exist "!ROOT!\project\backend\src" set "PROJECT=!ROOT!\project"
-
-:: Strategy 2: backend\src is right here (START.bat is inside project folder)
-if not defined PROJECT (
-    if exist "!ROOT!\backend\src" set "PROJECT=!ROOT!"
+:: 1. Current directory is project
+if exist "!ROOT!\backend\src" set "P=!ROOT!"
+:: 2. Project subfolder
+if not defined P if exist "!ROOT!\project\backend\src" set "P=!ROOT!\project"
+:: 3. Parent directory
+if not defined P (
+    for %%X in ("!ROOT!\..") do (
+        if exist "%%~fX\backend\src" set "P=%%~fX"
+        if exist "%%~fX\project\backend\src" set "P=%%~fX\project"
+    )
 )
-
-:: Strategy 3: Check one level deeper (zip extracted with wrapper folder)
-if not defined PROJECT (
+:: 4. Desktop location
+if not defined P (
+    if exist "%USERPROFILE%\Desktop\SB-TMS\project\backend\src" set "P=%USERPROFILE%\Desktop\SB-TMS\project"
+    if exist "%USERPROFILE%\Desktop\SB-TMS\backend\src" set "P=%USERPROFILE%\Desktop\SB-TMS"
+)
+:: 5. Subdirectories
+if not defined P (
     for /d %%D in ("!ROOT!\*") do (
-        if not defined PROJECT (
-            if exist "%%D\project\backend\src" set "PROJECT=%%D\project"
-            if exist "%%D\backend\src" set "PROJECT=%%D"
-        )
+        if not defined P if exist "%%D\backend\src" set "P=%%D"
+        if not defined P if exist "%%D\project\backend\src" set "P=%%D\project"
     )
 )
 
-:: Strategy 4: Check parent directory
-if not defined PROJECT (
-    for %%P in ("!ROOT!\..") do (
-        if exist "%%~fP\project\backend\src" set "PROJECT=%%~fP\project"
-        if exist "%%~fP\backend\src" set "PROJECT=%%~fP"
-    )
-)
-
-:: Strategy 5: Check Desktop for previously cloned copy
-if not defined PROJECT (
-    if exist "%USERPROFILE%\Desktop\SB-TMS\project\backend\src" set "PROJECT=%USERPROFILE%\Desktop\SB-TMS\project"
-    if exist "%USERPROFILE%\Desktop\SB-TMS\backend\src" set "PROJECT=%USERPROFILE%\Desktop\SB-TMS"
-)
-
-:: Strategy 6: AUTO-DOWNLOAD from GitHub if nothing found
-if not defined PROJECT (
-    echo.
-    echo  Project files not found locally. Downloading from GitHub automatically...
-    echo.
+:: 6. If files not found on clean laptop, auto-download from GitHub
+if not defined P (
+    echo [Setup] Project files not found locally.
+    echo [Setup] Auto-downloading SB-TMS from GitHub repository...
+    set "DEST_DIR=%USERPROFILE%\Desktop\SB-TMS"
+    if exist "!DEST_DIR!" rmdir /s /q "!DEST_DIR!" >nul 2>&1
+    mkdir "!DEST_DIR!" >nul 2>&1
     
-    set "INSTALL_DIR=%USERPROFILE%\Desktop\SB-TMS"
-    
-    :: Check if git is available
     where git >nul 2>&1
     if !ERRORLEVEL! equ 0 (
-        echo       [DOWNLOAD] Cloning repository with git...
-        if exist "!INSTALL_DIR!" rmdir /s /q "!INSTALL_DIR!" >nul 2>&1
-        git clone "https://github.com/Lanthanode/capstone-OOP-java-SBL-1-LAB.git" "!INSTALL_DIR!" 2>&1
-        if exist "!INSTALL_DIR!\project\backend\src" (
-            set "PROJECT=!INSTALL_DIR!\project"
-        )
-    )
-    
-    :: Fallback: download zip via PowerShell if git not available
-    if not defined PROJECT (
-        echo       [DOWNLOAD] Downloading project zip from GitHub...
-        set "DL_ZIP=%TEMP%\sbtms-download.zip"
-        set "DL_TEMP=%TEMP%\sbtms-extract"
-        
-        powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-            "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; " ^
-            "try { " ^
-            "  Invoke-WebRequest -Uri 'https://github.com/Lanthanode/capstone-OOP-java-SBL-1-LAB/archive/refs/heads/main.zip' -OutFile '!DL_ZIP!' -UseBasicParsing; " ^
-            "  if (Test-Path '!DL_TEMP!') { Remove-Item '!DL_TEMP!' -Recurse -Force }; " ^
-            "  Expand-Archive -Path '!DL_ZIP!' -DestinationPath '!DL_TEMP!' -Force; " ^
-            "  $inner = (Get-ChildItem '!DL_TEMP!' -Directory | Select-Object -First 1).FullName; " ^
-            "  if (Test-Path '!INSTALL_DIR!') { Remove-Item '!INSTALL_DIR!' -Recurse -Force }; " ^
-            "  Move-Item $inner '!INSTALL_DIR!' -Force; " ^
-            "  Remove-Item '!DL_ZIP!' -Force -ErrorAction SilentlyContinue; " ^
-            "  Remove-Item '!DL_TEMP!' -Recurse -Force -ErrorAction SilentlyContinue; " ^
-            "  Write-Host '       Download complete.'; " ^
-            "} catch { " ^
-            "  Write-Host '[ERROR]' $_.Exception.Message; " ^
-            "  exit 1; " ^
-            "}"
-        
-        if exist "!INSTALL_DIR!\project\backend\src" (
-            set "PROJECT=!INSTALL_DIR!\project"
-        )
-    )
-    
-    if defined PROJECT (
-        echo       [OK] Project installed to: !INSTALL_DIR!
-        echo.
-        :: Copy START.bat to the installed location for future runs
-        copy /y "%~f0" "!INSTALL_DIR!\START.bat" >nul 2>&1
+        git clone --depth 1 "https://github.com/Lanthanode/capstone-OOP-java-SBL-1-LAB.git" "!DEST_DIR!" 2>&1
     ) else (
-        echo.
-        echo  [ERROR] Could not download project. Check your internet connection.
-        echo  You can also manually download from:
-        echo    https://github.com/Lanthanode/capstone-OOP-java-SBL-1-LAB
-        echo.
-        pause
-        exit /b 1
+        where curl.exe >nul 2>&1
+        if !ERRORLEVEL! equ 0 (
+            curl.exe -fSL --progress-bar -o "%TEMP%\sbtms.zip" "https://github.com/Lanthanode/capstone-OOP-java-SBL-1-LAB/archive/refs/heads/main.zip"
+        ) else (
+            powershell -NoProfile -ExecutionPolicy Bypass -Command "$ProgressPreference='SilentlyContinue'; [Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; Invoke-WebRequest 'https://github.com/Lanthanode/capstone-OOP-java-SBL-1-LAB/archive/refs/heads/main.zip' -OutFile '$env:TEMP\sbtms.zip' -UseBasicParsing"
+        )
+        powershell -NoProfile -ExecutionPolicy Bypass -Command "$ProgressPreference='SilentlyContinue'; Expand-Archive '$env:TEMP\sbtms.zip' '$env:TEMP\sbtms_unzip' -Force; $src = (Get-ChildItem '$env:TEMP\sbtms_unzip' -Dir | Select-Object -First 1).FullName; Copy-Item -Path \"$src\*\" -Destination '!DEST_DIR!' -Recurse -Force; Remove-Item '$env:TEMP\sbtms.zip', '$env:TEMP\sbtms_unzip' -Recurse -Force -EA SilentlyContinue"
+    )
+    
+    if exist "!DEST_DIR!\project\backend\src" set "P=!DEST_DIR!\project"
+    if not defined P if exist "!DEST_DIR!\backend\src" set "P=!DEST_DIR!"
+    if defined P (
+        copy /y "%~f0" "!DEST_DIR!\START.bat" >nul 2>&1
+        echo [OK] SB-TMS installed to Desktop\SB-TMS!
+    ) else (
+        echo [ERROR] Could not install SB-TMS. Please check internet connection.
+        pause & exit /b 1
     )
 )
 
-cd /d "!PROJECT!"
-echo       [OK] Project found at: !PROJECT!
+cd /d "!P!"
+echo [OK] Project directory: !P!
 
 :: ============================================================================
-:: STEP 1: FIND JAVA
+:: STEP 1: Detect or Auto-Install Java
 :: ============================================================================
-echo [1/6] Searching for Java JDK on this system...
-
-set "JAVA_FOUND=0"
 set "JAVA_EXE="
 set "JAVAC_EXE="
 
-:: --- Strategy A: Check PATH ---
+:: 1. Check PATH
 where java >nul 2>&1
 if !ERRORLEVEL! equ 0 (
-    where javac >nul 2>&1
+    set "JAVA_EXE=java"
+    where javac >nul 2>&1 && set "JAVAC_EXE=javac"
+)
+
+:: 2. Check JAVA_HOME
+if not defined JAVA_EXE if defined JAVA_HOME (
+    if exist "!JAVA_HOME!\bin\java.exe" (
+        set "JAVA_EXE=!JAVA_HOME!\bin\java.exe"
+        if exist "!JAVA_HOME!\bin\javac.exe" set "JAVAC_EXE=!JAVA_HOME!\bin\javac.exe"
+        set "PATH=!JAVA_HOME!\bin;!PATH!"
+    )
+)
+
+:: 3. Check local portable-jdk
+if not defined JAVA_EXE (
+    for %%L in ("!P!\portable-jdk" "!P!\..\portable-jdk" "%USERPROFILE%\Desktop\SB-TMS\portable-jdk" "%LOCALAPPDATA%\SB-TMS\portable-jdk") do (
+        if not defined JAVA_EXE if exist "%%~L\bin\java.exe" (
+            set "JAVA_EXE=%%~L\bin\java.exe"
+            if exist "%%~L\bin\javac.exe" set "JAVAC_EXE=%%~L\bin\javac.exe"
+            set "PATH=%%~L\bin;!PATH!"
+        )
+    )
+)
+
+:: 4. Check Program Files
+if not defined JAVA_EXE (
+    call :check_java_dir "C:\Program Files\Java"
+    call :check_java_dir "C:\Program Files\Eclipse Adoptium"
+    call :check_java_dir "C:\Program Files\AdoptOpenJDK"
+    call :check_java_dir "C:\Program Files\Microsoft"
+    call :check_java_dir "C:\Program Files\Amazon Corretto"
+    call :check_java_dir "C:\Program Files\Zulu"
+    call :check_java_dir "C:\Program Files\BellSoft"
+    if exist "C:\Program Files (x86)\Java" call :check_java_dir "C:\Program Files (x86)\Java"
+)
+
+:: 5. Check Registry
+if not defined JAVA_EXE (
+    for %%K in (
+        "HKLM\SOFTWARE\JavaSoft\JDK"
+        "HKLM\SOFTWARE\JavaSoft\Java Development Kit"
+        "HKLM\SOFTWARE\JavaSoft\Java Runtime Environment"
+    ) do (
+        if not defined JAVA_EXE (
+            set "RVER=" & for /f "tokens=2*" %%a in ('reg query %%K /v CurrentVersion 2^>nul') do set "RVER=%%b"
+            if defined RVER (
+                for /f "tokens=2*" %%a in ('reg query "%%~K\!RVER!" /v JavaHome 2^>nul') do (
+                    if exist "%%b\bin\java.exe" (
+                        set "JAVA_EXE=%%b\bin\java.exe"
+                        if exist "%%b\bin\javac.exe" set "JAVAC_EXE=%%b\bin\javac.exe"
+                        set "PATH=%%b\bin;!PATH!"
+                    )
+                )
+            )
+        )
+    )
+)
+
+:: 6. If NO Java on PC, auto-download portable OpenJDK 21
+if not defined JAVA_EXE (
+    echo.
+    echo ----------------------------------------------------------------------------
+    echo  [Notice] Java is not installed on this PC.
+    echo  Auto-downloading portable OpenJDK 21 [one-time setup]...
+    echo ----------------------------------------------------------------------------
+    set "JDK_DEST=!P!\portable-jdk"
+    if not exist "!JDK_DEST!" mkdir "!JDK_DEST!" >nul 2>&1
+    
+    set "JDK_ZIP=%TEMP%\openjdk21.zip"
+    set "JDK_TMP=%TEMP%\openjdk21_tmp"
+    if exist "!JDK_ZIP!" del /f /q "!JDK_ZIP!" >nul 2>&1
+    if exist "!JDK_TMP!" rmdir /s /q "!JDK_TMP!" >nul 2>&1
+    
+    echo  Downloading OpenJDK 21 binary...
+    where curl.exe >nul 2>&1
     if !ERRORLEVEL! equ 0 (
-        for /f "delims=" %%i in ('where java') do (
-            if "!JAVA_EXE!"=="" set "JAVA_EXE=%%i"
-        )
-        for /f "delims=" %%i in ('where javac') do (
-            if "!JAVAC_EXE!"=="" set "JAVAC_EXE=%%i"
-        )
-        set "JAVA_FOUND=1"
-        echo       [OK] Found java on PATH: !JAVA_EXE!
-    )
-)
-
-:: --- Strategy B: Check JAVA_HOME ---
-if "!JAVA_FOUND!"=="0" (
-    if defined JAVA_HOME (
-        if exist "!JAVA_HOME!\bin\java.exe" (
-            if exist "!JAVA_HOME!\bin\javac.exe" (
-                set "JAVA_EXE=!JAVA_HOME!\bin\java.exe"
-                set "JAVAC_EXE=!JAVA_HOME!\bin\javac.exe"
-                set "PATH=!JAVA_HOME!\bin;!PATH!"
-                set "JAVA_FOUND=1"
-                echo       [OK] Found via JAVA_HOME: !JAVA_HOME!
-            )
-        )
-    )
-)
-
-:: --- Strategy C: Check common JDK install locations one by one ---
-if "!JAVA_FOUND!"=="0" (
-    echo       [INFO] Not on PATH or JAVA_HOME. Scanning install locations...
-    call :search_jdk "C:\Program Files\Java"
-    call :search_jdk "C:\Program Files\Microsoft"
-    call :search_jdk "C:\Program Files\Eclipse Adoptium"
-    call :search_jdk "C:\Program Files\AdoptOpenJDK"
-    call :search_jdk "C:\Program Files\Zulu"
-    call :search_jdk "C:\Program Files\Amazon Corretto"
-    call :search_jdk "C:\Program Files\BellSoft"
-    call :search_jdk "C:\Program Files\Semeru"
-    call :search_jdk "C:\Program Files\Red Hat"
-    call :search_jdk "C:\Program Files\SapMachine"
-    call :search_jdk "C:\Program Files (x86)\Java"
-)
-
-:: --- Strategy D: Check Windows Registry ---
-if "!JAVA_FOUND!"=="0" (
-    echo       [INFO] Checking Windows Registry...
-    set "REG_VER="
-    for /f "tokens=2*" %%a in ('reg query "HKLM\SOFTWARE\JavaSoft\JDK" /v CurrentVersion 2^>nul') do set "REG_VER=%%b"
-    if defined REG_VER (
-        set "REG_HOME="
-        for /f "tokens=2*" %%a in ('reg query "HKLM\SOFTWARE\JavaSoft\JDK\!REG_VER!" /v JavaHome 2^>nul') do set "REG_HOME=%%b"
-        if defined REG_HOME (
-            if exist "!REG_HOME!\bin\java.exe" (
-                set "JAVA_EXE=!REG_HOME!\bin\java.exe"
-                set "JAVAC_EXE=!REG_HOME!\bin\javac.exe"
-                set "PATH=!REG_HOME!\bin;!PATH!"
-                set "JAVA_FOUND=1"
-                echo       [OK] Found via Registry: !REG_HOME!
-            )
-        )
-    )
-)
-
-:: --- Strategy E: Use portable JDK (already downloaded) ---
-if "!JAVA_FOUND!"=="0" (
-    if exist "!ROOT!\portable-jdk\bin\java.exe" (
-        set "JAVA_EXE=!ROOT!\portable-jdk\bin\java.exe"
-        set "JAVAC_EXE=!ROOT!\portable-jdk\bin\javac.exe"
-        set "PATH=!ROOT!\portable-jdk\bin;!PATH!"
-        set "JAVA_FOUND=1"
-        echo       [OK] Using portable JDK from previous download.
-    )
-)
-
-:: --- Strategy F: Download portable JDK automatically ---
-if "!JAVA_FOUND!"=="0" (
-    echo.
-    echo  =====================================================================
-    echo   Java JDK was NOT found on this computer.
-    echo   Downloading a portable JDK automatically... Please wait.
-    echo  =====================================================================
-    echo.
-
-    set "JDK_DIR=!ROOT!\portable-jdk"
-    set "JDK_ZIP=!ROOT!\jdk-download.zip"
-
-    echo       [DOWNLOAD] Fetching OpenJDK 21 from Adoptium...
-    powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-        "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; " ^
-        "try { " ^
-        "  $url = 'https://api.adoptium.net/v3/binary/latest/21/ga/windows/x64/jdk/hotspot/normal/eclipse'; " ^
-        "  Write-Host '       Downloading... (this may take a few minutes)'; " ^
-        "  Invoke-WebRequest -Uri $url -OutFile '!JDK_ZIP!' -UseBasicParsing; " ^
-        "  Write-Host '       Extracting...'; " ^
-        "  Expand-Archive -Path '!JDK_ZIP!' -DestinationPath '!ROOT!\jdk-temp' -Force; " ^
-        "  $extracted = (Get-ChildItem '!ROOT!\jdk-temp' -Directory | Select-Object -First 1).FullName; " ^
-        "  if ($extracted) { " ^
-        "    if (Test-Path '!JDK_DIR!') { Remove-Item '!JDK_DIR!' -Recurse -Force }; " ^
-        "    Move-Item $extracted '!JDK_DIR!' -Force; " ^
-        "    Remove-Item '!ROOT!\jdk-temp' -Recurse -Force -ErrorAction SilentlyContinue; " ^
-        "    Remove-Item '!JDK_ZIP!' -Force -ErrorAction SilentlyContinue; " ^
-        "    Write-Host '       JDK installed to: !JDK_DIR!'; " ^
-        "  } " ^
-        "} catch { " ^
-        "  Write-Host '[ERROR] Download failed:' $_.Exception.Message; " ^
-        "  exit 1; " ^
-        "}"
-
-    if exist "!JDK_DIR!\bin\java.exe" (
-        set "JAVA_EXE=!JDK_DIR!\bin\java.exe"
-        set "JAVAC_EXE=!JDK_DIR!\bin\javac.exe"
-        set "PATH=!JDK_DIR!\bin;!PATH!"
-        set "JAVA_FOUND=1"
-        echo       [OK] Portable JDK installed successfully!
+        curl.exe -fSL --progress-bar -o "!JDK_ZIP!" "https://api.adoptium.net/v3/binary/latest/21/ga/windows/x64/jdk/hotspot/normal/eclipse"
     ) else (
-        echo.
-        echo  =====================================================================
-        echo   [FATAL] Could not install Java automatically.
-        echo   Please install Java JDK 17 or 21 manually from:
-        echo     https://adoptium.net/
-        echo   Then run this script again.
-        echo  =====================================================================
-        pause
-        exit /b 1
+        powershell -NoProfile -ExecutionPolicy Bypass -Command "$ProgressPreference='SilentlyContinue'; [Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; Invoke-WebRequest 'https://api.adoptium.net/v3/binary/latest/21/ga/windows/x64/jdk/hotspot/normal/eclipse' -OutFile '!JDK_ZIP!' -UseBasicParsing"
+    )
+    
+    echo  Extracting portable JDK...
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "$ProgressPreference='SilentlyContinue'; Expand-Archive '!JDK_ZIP!' '!JDK_TMP!' -Force; $inner = (Get-ChildItem '!JDK_TMP!' -Dir | Select-Object -First 1).FullName; Copy-Item -Path \"$inner\*\" -Destination '!JDK_DEST!' -Recurse -Force; Remove-Item '!JDK_ZIP!', '!JDK_TMP!' -Recurse -Force -EA SilentlyContinue"
+    
+    if exist "!JDK_DEST!\bin\java.exe" (
+        set "JAVA_EXE=!JDK_DEST!\bin\java.exe"
+        if exist "!JDK_DEST!\bin\javac.exe" set "JAVAC_EXE=!JDK_DEST!\bin\javac.exe"
+        set "PATH=!JDK_DEST!\bin;!PATH!"
+        echo  [OK] Portable OpenJDK 21 ready!
+    ) else (
+        echo  [FAIL] Could not setup Java automatically.
+        echo  Please install Java from https://adoptium.net/
+        pause & exit /b 1
     )
 )
 
-:: Display Java version
-echo.
-"!JAVA_EXE!" -version 2>&1 | findstr /i "version"
-echo.
+echo [OK] Java runtime: !JAVA_EXE!
 
 :: ============================================================================
-:: STEP 2: Create required directories
+:: STEP 2: Verify Required Directories & Libraries
 :: ============================================================================
-echo [2/6] Initializing workspace directories...
 if not exist "backend\bin" mkdir "backend\bin"
 if not exist "backend\lib" mkdir "backend\lib"
 if not exist "database" mkdir "database"
-if not exist "screenshots" mkdir "screenshots"
-if not exist "docs" mkdir "docs"
-echo       [OK] All directories ready.
 
-:: ============================================================================
-:: STEP 3: Download database drivers if missing
-:: ============================================================================
-echo [3/6] Checking database drivers...
-
-call :download_jar "backend\lib\sqlite-jdbc.jar" "https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/3.45.2.0/sqlite-jdbc-3.45.2.0.jar" "SQLite JDBC"
-call :download_jar "backend\lib\slf4j-api.jar" "https://repo1.maven.org/maven2/org/slf4j/slf4j-api/2.0.12/slf4j-api-2.0.12.jar" "SLF4J API"
-call :download_jar "backend\lib\slf4j-simple.jar" "https://repo1.maven.org/maven2/org/slf4j/slf4j-simple/2.0.12/slf4j-simple-2.0.12.jar" "SLF4J Simple"
-
-:: Verify all jars exist
-if not exist "backend\lib\sqlite-jdbc.jar" goto :driver_fail
-if not exist "backend\lib\slf4j-api.jar" goto :driver_fail
-if not exist "backend\lib\slf4j-simple.jar" goto :driver_fail
-echo       [OK] All drivers present.
-goto :drivers_ok
-
-:driver_fail
-echo       [FATAL] Could not download required drivers. Check internet connection.
-pause
-exit /b 1
-
-:drivers_ok
-
-:: ============================================================================
-:: STEP 4: ALWAYS recompile (prevents cross-machine bytecode conflicts)
-:: ============================================================================
-echo [4/6] Compiling Java source code...
-
-:: Clean old bytecode
-if exist "backend\bin\com" (
-    echo       [CLEAN] Removing old compiled classes...
-    rmdir /s /q "backend\bin\com" >nul 2>&1
+:: SQLite JDBC Driver
+if not exist "backend\lib\sqlite-jdbc.jar" (
+    echo [Setup] Downloading SQLite JDBC driver...
+    where curl.exe >nul 2>&1 && curl.exe -fSL --retry 2 -o "backend\lib\sqlite-jdbc.jar" "https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/3.45.2.0/sqlite-jdbc-3.45.2.0.jar" 2>nul
+    if not exist "backend\lib\sqlite-jdbc.jar" powershell -NoProfile -ExecutionPolicy Bypass -Command "$ProgressPreference='SilentlyContinue'; [Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; Invoke-WebRequest 'https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/3.45.2.0/sqlite-jdbc-3.45.2.0.jar' -OutFile 'backend\lib\sqlite-jdbc.jar' -UseBasicParsing"
 )
 
-:: Collect all .java source files
-set "JAVA_SOURCES="
-for /r "backend\src" %%f in (*.java) do (
-    set "JAVA_SOURCES=!JAVA_SOURCES! "%%f""
+:: SLF4J API
+if not exist "backend\lib\slf4j-api.jar" (
+    echo [Setup] Downloading SLF4J API...
+    where curl.exe >nul 2>&1 && curl.exe -fSL --retry 2 -o "backend\lib\slf4j-api.jar" "https://repo1.maven.org/maven2/org/slf4j/slf4j-api/2.0.12/slf4j-api-2.0.12.jar" 2>nul
+    if not exist "backend\lib\slf4j-api.jar" powershell -NoProfile -ExecutionPolicy Bypass -Command "$ProgressPreference='SilentlyContinue'; [Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; Invoke-WebRequest 'https://repo1.maven.org/maven2/org/slf4j/slf4j-api/2.0.12/slf4j-api-2.0.12.jar' -OutFile 'backend\lib\slf4j-api.jar' -UseBasicParsing"
 )
 
-if "!JAVA_SOURCES!"=="" (
-    echo       [FATAL] No Java source files found in backend\src!
-    pause
-    exit /b 1
+:: SLF4J Simple
+if not exist "backend\lib\slf4j-simple.jar" (
+    echo [Setup] Downloading SLF4J Simple...
+    where curl.exe >nul 2>&1 && curl.exe -fSL --retry 2 -o "backend\lib\slf4j-simple.jar" "https://repo1.maven.org/maven2/org/slf4j/slf4j-simple/2.0.12/slf4j-simple-2.0.12.jar" 2>nul
+    if not exist "backend\lib\slf4j-simple.jar" powershell -NoProfile -ExecutionPolicy Bypass -Command "$ProgressPreference='SilentlyContinue'; [Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; Invoke-WebRequest 'https://repo1.maven.org/maven2/org/slf4j/slf4j-simple/2.0.12/slf4j-simple-2.0.12.jar' -OutFile 'backend\lib\slf4j-simple.jar' -UseBasicParsing"
 )
-
-"!JAVAC_EXE!" -encoding UTF-8 -cp "backend\lib\*;." -d "backend\bin" !JAVA_SOURCES!
-if !ERRORLEVEL! neq 0 (
-    echo.
-    echo       [ERROR] Compilation failed! See errors above.
-    pause
-    exit /b 1
-)
-echo       [OK] All Java classes compiled successfully.
 
 :: ============================================================================
-:: STEP 5: Clear port 8080 if occupied
+:: STEP 3: Verify / Compile Java Bytecode
 :: ============================================================================
-echo [5/6] Ensuring port 8080 is available...
+set "NEED_COMPILE=0"
+if not exist "backend\bin\com\sbtms\Main.class" set "NEED_COMPILE=1"
 
-set "PORT_CLEARED=0"
+if "!NEED_COMPILE!"=="1" (
+    if not defined JAVAC_EXE (
+        echo [ERROR] Java Compiler javac is required for compilation but not found.
+        echo Please ensure JDK is installed.
+        pause & exit /b 1
+    )
+    echo [Setup] Compiling backend sources [Java 11+ compatible bytecode]...
+    set "SRC_FILES="
+    for /r "backend\src" %%f in (*.java) do set "SRC_FILES=!SRC_FILES! "%%f""
+    "!JAVAC_EXE!" -encoding UTF-8 --release 11 -cp "backend\lib\*;." -d "backend\bin" !SRC_FILES!
+    if !ERRORLEVEL! neq 0 (
+        echo [FAIL] Compilation error.
+        pause & exit /b 1
+    )
+    echo [OK] Compiled successfully.
+) else (
+    echo [OK] Compiled bytecode verified.
+)
+
+:: ============================================================================
+:: STEP 4: Free Port 8080 If Occupied
+:: ============================================================================
 for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr ":8080 " ^| findstr "LISTENING"') do (
     if "%%a" neq "0" (
-        echo       [INFO] Killing process PID %%a on port 8080...
+        echo [Notice] Terminating process on port 8080 PID %%a
         taskkill /F /PID %%a >nul 2>&1
-        set "PORT_CLEARED=1"
     )
-)
-if "!PORT_CLEARED!"=="1" (
-    echo       [OK] Port 8080 cleared. Waiting for release...
-    ping -n 3 127.0.0.1 >nul 2>&1
-) else (
-    echo       [OK] Port 8080 is free.
 )
 
 :: ============================================================================
-:: STEP 6: Launch server, wait for health, then open browser
+:: STEP 5: Launch Server & Auto-Open Web Browser
 :: ============================================================================
-echo [6/6] Starting SB-TMS Server...
 echo.
-echo  ============================================================================
-echo  ^|                                                                          ^|
-echo  ^|   SERVER STARTING AT: http://localhost:8080                              ^|
-echo  ^|                                                                          ^|
-echo  ^|   The browser will open automatically when the server is ready.          ^|
-echo  ^|   To stop: close this window or press Ctrl+C.                           ^|
-echo  ^|                                                                          ^|
-echo  ============================================================================
+echo ============================================================================
+echo   Starting SB-TMS Banking Server on http://localhost:8080
+echo ============================================================================
 echo.
+
+:: Launch background health check + browser opener
+start /min "" powershell -NoProfile -ExecutionPolicy Bypass -Command "$ProgressPreference='SilentlyContinue'; for($i=1; $i -le 30; $i++){ Start-Sleep -Milliseconds 600; try { $res=Invoke-WebRequest -Uri 'http://localhost:8080/api/health' -UseBasicParsing -TimeoutSec 1; if($res.StatusCode -eq 200){ Start-Process 'http://localhost:8080/index.html'; break } } catch{} }"
 
 :: Start server in background
 start /b "" "!JAVA_EXE!" -cp "backend\bin;backend\lib\*" com.sbtms.Main --port 8080
 
-:: Wait for server readiness by polling health endpoint
-echo       Waiting for server...
-set "RETRIES=0"
-:wait_loop
-if !RETRIES! geq 30 (
-    echo       [WARNING] Server took too long. Opening browser anyway...
-    goto :open_browser
-)
+:: Wait until healthy or timeout
+set "ATTEMPTS=0"
+:wait_health
+if !ATTEMPTS! geq 25 goto :health_done
+set /a ATTEMPTS+=1
 ping -n 2 127.0.0.1 >nul 2>&1
-set /a RETRIES+=1
-
-:: Check if server is responding
 curl.exe -s -o nul -w "%%{http_code}" "http://localhost:8080/api/health" 2>nul | findstr "200" >nul 2>&1
-if !ERRORLEVEL! equ 0 (
-    echo       [OK] Server is running and healthy!
-    goto :open_browser
-)
-if !RETRIES! lss 10 (
-    goto :wait_loop
-) else (
-    echo       Still waiting... ^(!RETRIES!s^)
-    goto :wait_loop
-)
+if !ERRORLEVEL! equ 0 goto :health_done
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$ProgressPreference='SilentlyContinue'; try{$r=Invoke-WebRequest 'http://localhost:8080/api/health' -UseBasicParsing -TimeoutSec 1; if($r.StatusCode -eq 200){exit 0}else{exit 1}}catch{exit 1}" >nul 2>&1
+if !ERRORLEVEL! equ 0 goto :health_done
+goto :wait_health
 
-:open_browser
+:health_done
 echo.
-echo       Opening browser...
-start "" "http://localhost:8080/index.html"
-
+echo ============================================================================
+echo   [SUCCESS] SB-TMS Banking System is LIVE!
 echo.
-echo  ============================================================================
-echo  ^|   Server is LIVE. Do NOT close this window while using the app.         ^|
-echo  ============================================================================
-echo.
-echo  Press Ctrl+C or close this window to stop the server.
+echo   Web Dashboard  : http://localhost:8080/index.html
+echo   DBMS Inspector : http://localhost:8080/index.html#sql-inspector
+echo   REST Health    : http://localhost:8080/api/health
+echo ============================================================================
+echo   Server is actively running.
+echo   To stop the server: Run STOP.bat or press Ctrl+C in this window.
+echo ============================================================================
 echo.
 
-:: Keep alive - wait for java to exit
+:: Keep script running while java is active
 :keep_alive
-ping -n 6 127.0.0.1 >nul 2>&1
+ping -n 4 127.0.0.1 >nul 2>&1
 tasklist /fi "imagename eq java.exe" 2>nul | findstr /i "java.exe" >nul 2>&1
 if !ERRORLEVEL! equ 0 goto :keep_alive
 
 echo.
-echo  Server has stopped.
+echo [Notice] Server process terminated.
 pause
 exit /b 0
 
-:: ============================================================================
-:: SUBROUTINES
-:: ============================================================================
-
-:search_jdk
-:: Search a directory for java.exe + javac.exe
-if "!JAVA_FOUND!"=="1" exit /b 0
-set "SEARCH_DIR=%~1"
-if not exist "!SEARCH_DIR!" exit /b 0
-for /f "delims=" %%J in ('dir /b /s /a-d "!SEARCH_DIR!\java.exe" 2^>nul') do (
-    if "!JAVA_FOUND!"=="0" (
-        set "CANDIDATE_DIR=%%~dpJ"
-        if exist "!CANDIDATE_DIR!javac.exe" (
-            set "JAVA_EXE=%%J"
-            set "JAVAC_EXE=!CANDIDATE_DIR!javac.exe"
-            set "PATH=!CANDIDATE_DIR!;!PATH!"
-            set "JAVA_FOUND=1"
-            echo       [OK] Found JDK at: !CANDIDATE_DIR!
-        )
+:: Helper: check directory recursively for java.exe
+:check_java_dir
+if defined JAVA_EXE exit /b 0
+if not exist "%~1" exit /b 0
+for /f "delims=" %%J in ('dir /b /s /a-d "%~1\java.exe" 2^>nul') do (
+    if not defined JAVA_EXE (
+        set "JAVA_EXE=%%J"
+        if exist "%%~dpJjavac.exe" set "JAVAC_EXE=%%~dpJjavac.exe"
+        set "PATH=%%~dpJ;!PATH!"
     )
 )
-exit /b 0
-
-:download_jar
-:: Download a jar if it doesn't exist. Args: %1=path %2=url %3=name
-set "JAR_PATH=%~1"
-set "JAR_URL=%~2"
-set "JAR_NAME=%~3"
-if exist "!JAR_PATH!" (
-    echo       [OK] !JAR_NAME! present.
-    exit /b 0
-)
-echo       [DOWNLOAD] !JAR_NAME!...
-curl.exe -fSL --retry 3 -o "!JAR_PATH!" "!JAR_URL!" 2>nul
-if exist "!JAR_PATH!" exit /b 0
-:: Fallback to PowerShell
-echo       [FALLBACK] Using PowerShell...
-powershell -NoProfile -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri '!JAR_URL!' -OutFile '!JAR_PATH!' -UseBasicParsing"
 exit /b 0
